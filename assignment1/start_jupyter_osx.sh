@@ -1,4 +1,4 @@
 # Assume the virtualenv is called .env
 
-cp frameworkpython .env/bin
-.env/bin/frameworkpython -m Jupyter notebook
+cp frameworkpython dl/bin
+dl/bin/frameworkpython -m Jupyter notebook
