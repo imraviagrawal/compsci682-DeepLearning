@@ -64,14 +64,14 @@ class KNearestNeighbor(object):
     num_train = self.X_train.shape[0]
     dists = np.zeros((num_test, num_train))
     for i in xrange(num_test):
-        for j in xrange(num_train):
+      for j in xrange(num_train):
         #####################################################################
         # TODO:                                                             #
         # Compute the l2 distance between the ith test point and the jth    #
         # training point, and store the result in dists[i, j]. You should   #
         # not use a loop over dimension.                              
         #####################################################################
-            dists[i][j] = np.sqrt(np.sum((X[i,:] - self.X_train[j,:])))
+        dists[i][j] = np.sqrt(np.sum((X[i] - self.X_train[j])))
         ###################i,:##################################################
         #                       END OF YOUR CODE                            #
         #####################################################################
@@ -153,7 +153,7 @@ class KNearestNeighbor(object):
       # neighbors. Store these labels in closest_y.                           #
       # Hint: Look up the function numpy.argsort.                             #
       #########################################################################
-      pass
+      closest = self.y_train[np.argsort(dists[i])[:k]]
       #########################################################################
       # TODO:                                                                 #
       # Now that you have found the labels of the k nearest neighbors, you    #
@@ -161,7 +161,7 @@ class KNearestNeighbor(object):
       # Store this label in y_pred[i]. Break ties by choosing the smaller     #
       # label.                                                                #
       #########################################################################
-      pass
+      y_pred[i] = np.argmax(np.bincount(closest))
       #########################################################################
       #                           END OF YOUR CODE                            # 
       #########################################################################
