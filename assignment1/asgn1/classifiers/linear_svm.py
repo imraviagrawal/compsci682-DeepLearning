@@ -67,8 +67,9 @@ def svm_loss_vectorized(W, X, y, reg):
   """
   loss = 0.0
   #print(W.shape, X.shape)
+  #print(X)
   dW = np.zeros(W.shape) # initialize the gradient as zero
-  num_classes = W.shape[1]
+  #num_classes = W.shape[1]
   num_train = X.shape[0]
   #############################################################################
   # TODO:                                                                     #
@@ -102,8 +103,15 @@ def svm_loss_vectorized(W, X, y, reg):
   # to reuse some of the intermediate values that you used to compute the     #
   # loss.                                                                     #
   #############################################################################
-  pos_loss  = np.sum(margin.T > 0, axis = 1)
-  print(pos_loss.shape)
+  loss_grad = np.zeros((scores.shape[0], scores.shape[1]))
+  loss_grad[margin.T > 0] = 1
+  pos_losses  = -1*np.sum(margin.T > 0, axis = 1)
+  #print(pos_losses.shape)
+  loss_grad[range(num_train),  y] = pos_losses
+  transposed_X = X.T
+  dW = transposed_X.dot(loss_grad)
+  dW = dW/num_train
+  dW = dW + reg*W
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
