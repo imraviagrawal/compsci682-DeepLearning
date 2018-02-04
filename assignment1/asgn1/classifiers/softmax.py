@@ -59,9 +59,6 @@ def softmax_loss_naive(W, X, y, reg):
 def softmax_loss_vectorized(W, X, y, reg):
   """
   Softmax loss function, vectorized version.
-  W = (D, C)
-  X = (N, D)
-  y = (N, )
   Inputs and outputs are the same as softmax_loss_naive.
   """
   # Initialize the loss and gradient to zero.
@@ -69,10 +66,6 @@ def softmax_loss_vectorized(W, X, y, reg):
   dW = np.zeros_like(W)
   num_train = X.shape[0]
   num_classes = W.shape[1]
-  #scores = np.zero(())
-  scores = np.dot(X, W)
-  print(X.shape, W.shape, scores.shape)
-
   """
   W = (D, C)
   X = (N, D)
@@ -84,10 +77,26 @@ def softmax_loss_vectorized(W, X, y, reg):
   # here, it is easy to run into numeric instability. Don't forget the        #
   # regularization!                                                           #
   #############################################################################
-  
-
+  #scores = np.zero(())
+  scores = X.dot(W)
+  #print(X.shape, W.shape, scores.shape)
+  maxedScores = np.max(scores, axis = 1)
+  scores =  scores - maxedScores.reshape(-1, 1)
+  #print(scores.shape)
+  numerator = np.exp(scores)
+  denominator = np.sum(np.exp(scores), axis = 1)
+  softMax = (numerator*1.0)/(denominator.reshape(-1, 1)*1.0)
+  #print(softMax)
+  # print(softMax.shape)
+  classes = range(num_train)
+  #loss =  np.sum(np.log(scores[classes, y]))
+  loss =  -np.sum(np.log(softMax[classes, y]))
   loss /= num_train
   loss = loss + 0.5*reg*np.sum(W*W)
+  # Loss Working 
+  softMax[classes, y] = softMax[classes, y] - 1
+  #dW = (X.T).dot(Scores) # Wrong
+  dW = (X.T).dot(softMax) # Softmax but scores
   dW /= num_train
   dW += reg*W
   #############################################################################
