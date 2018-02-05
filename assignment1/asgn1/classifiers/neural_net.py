@@ -104,8 +104,7 @@ class TwoLayerNet(object):
     softMax = numerator/denominator
     classes = range(N)
     #loss =  np.sum(np.log(scores[classes, y]))
-    loss =  -1*np.sum(np.log(softMax[classes, y]))
-
+    loss =  np.sum(-np.log(softMax[classes, y]))
     loss /= N
     loss = loss + 0.5*reg*np.sum(W1*W1) +  0.5*reg*np.sum(W2*W2)
     #############################################################################
@@ -119,7 +118,8 @@ class TwoLayerNet(object):
     # and biases. Store the results in the grads dictionary. For example,       #
     # grads['W1'] should store the gradient on W1, and be a matrix of same size #
     #############################################################################
-    softMax[classes, y]  = (softMax[classes, y] - 1)/N
+    softMax[classes, y]  = softMax[classes, y] - 1
+    softMax /= N
     #print(softMax.shape)
     dh1 = np.dot(softMax, np.transpose(W2))#[h1_relu <= 0] = 0)
     #print('HERE')
@@ -127,7 +127,7 @@ class TwoLayerNet(object):
     grads["W1"] = (X.T).dot(dh1)
     grads["b1"] = np.sum(dh1, axis = 0)
     grads["W2"] = np.dot(np.transpose(h1_relu), softMax) + 2*0.5*reg*W2
-    grads["b2"] = np.sum(scores, axis = 0)
+    grads["b2"] = np.sum(softMax, axis = 0)
     
 
     #############################################################################
@@ -173,15 +173,18 @@ class TwoLayerNet(object):
       # TODO: Create a random minibatch of training data and labels, storing  #
       # them in X_batch and y_batch respectively.                             #
       #########################################################################
-      batch_examples = np.arange(X)
-      index = np.random.choice(batch_examples, batch_size,replace = True)
-      X_batch, y_batch = X[index], y[index]
+      #batch_examples = np.arange(X)
+      index = np.random.choice(num_train, batch_size,replace = True)
+
+      X_batch, y_batch = X[index, :], y[index]
+      #print(X_batch.shape, y_batch.shape)
       #########################################################################
       #                             END OF YOUR CODE                          #
       #########################################################################
 
       # Compute loss and gradients using the current minibatch
       loss, grads = self.loss(X_batch, y=y_batch, reg=reg)
+      #print(loss)
       loss_history.append(loss)
 
       #########################################################################
@@ -190,10 +193,10 @@ class TwoLayerNet(object):
       # using stochastic gradient descent. You'll need to use the gradients   #
       # stored in the grads dictionary defined above.                         #
       #########################################################################
-       self.params['W1'] -= learning_rate*grads['W1']
-       self.params['b1'] -= learning_rate*grads['b1']
-       self.params['W2'] -= learning_rate*grads['W2']
-       self.params['b2'] -= learning_rate*grads['b2']
+      self.params['W1'] = self.params['W1'] -  learning_rate*grads['W1']
+      self.params['b1'] = self.params['b1'] -  learning_rate*grads['b1']
+      self.params['W2'] = self.params['W2'] -  learning_rate*grads['W2']
+      self.params['b2'] = self.params['b2'] -  learning_rate*grads['b2']
 
       #########################################################################
       #                             END OF YOUR CODE                          #
@@ -246,6 +249,7 @@ class TwoLayerNet(object):
     h1 = X.dot(W1) + b1
     h1_relu = np.maximum(0, h1)
     scores = h1_relu.dot(W2) + b2
+    #scores = self.loss(X)
     ###########################################################################
     #                              END OF YOUR CODE                           #
     ###########################################################################
