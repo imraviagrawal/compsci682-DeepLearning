@@ -101,8 +101,13 @@ class TwoLayerNet(object):
     scores = scores - maxd_scores.reshape(-1, 1)
     numerator = np.exp(scores)
     denominator = np.sum(np.exp(scores), axis = 1)
-    softmax = numerator/denominator.reshape(-1,1)
-    loss = 
+    softMax = numerator/denominator.reshape(-1,1)
+    classes = range(N)
+    #loss =  np.sum(np.log(scores[classes, y]))
+    loss =  -np.sum(np.log(softMax[classes, y]))
+
+    loss /= N
+    loss = loss + 0.5*reg*np.sum(W1*W1) +  0.5*reg*np.sum(W2*W2)
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -114,7 +119,9 @@ class TwoLayerNet(object):
     # and biases. Store the results in the grads dictionary. For example,       #
     # grads['W1'] should store the gradient on W1, and be a matrix of same size #
     #############################################################################
-    pass
+    softMax[classes, y]  = (softMax[classes, y] - 1)/N
+    print(softMax.shape)
+    #grads["W1"] = 
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
