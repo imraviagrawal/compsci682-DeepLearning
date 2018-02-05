@@ -1,7 +1,6 @@
 # compsci682-DeepLearning
 
-# Assignment 1:
-# CIFAR 10 Images Classification Task
+# Assignment 1: CIFAR 10 Images Classification Task
 
 KNN (Implemented)
 
