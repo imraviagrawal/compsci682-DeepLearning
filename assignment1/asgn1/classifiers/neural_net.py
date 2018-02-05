@@ -63,18 +63,23 @@ class TwoLayerNet(object):
       with respect to the loss function; has the same keys as self.params.
     """
     # Unpack variables from the params dictionary
+
     W1, b1 = self.params['W1'], self.params['b1']
+    #print(X.shape, W1.shape, b1.shape)
     W2, b2 = self.params['W2'], self.params['b2']
     N, D = X.shape
 
     # Compute the forward pass
-    scores = None
+    
     #############################################################################
     # TODO: Perform the forward pass, computing the class scores for the input. #
     # Store the result in the scores variable, which should be an array of      #
     # shape (N, C).                                                             #
     #############################################################################
-    pass
+    h1 = X.dot(W1) + b1
+    h1_relu = np.maximum(0, h1)
+    scores = h1_relu.dot(W2) + b2
+    #print(scores.shape) #(N, C)
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -92,7 +97,12 @@ class TwoLayerNet(object):
     # classifier loss. So that your results match ours, multiply the            #
     # regularization loss by 0.5                                                #
     #############################################################################
-    pass
+    maxd_scores = np.max(scores, axis = 1)
+    scores = scores - maxd_scores.reshape(-1, 1)
+    numerator = np.exp(scores)
+    denominator = np.sum(np.exp(scores), axis = 1)
+    softmax = numerator/denominator.reshape(-1,1)
+    loss = 
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -148,7 +158,9 @@ class TwoLayerNet(object):
       # TODO: Create a random minibatch of training data and labels, storing  #
       # them in X_batch and y_batch respectively.                             #
       #########################################################################
-      pass
+      batch_examples = np.arange(X)
+      index = np.random.choice(batch_examples, batch_size,replace = True)
+      X_batch, y_batch = X[index], y[index]
       #########################################################################
       #                             END OF YOUR CODE                          #
       #########################################################################
