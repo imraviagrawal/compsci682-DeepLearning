@@ -166,8 +166,8 @@ class TwoLayerNet(object):
     val_acc_history = []
 
     for it in xrange(num_iters):
-      X_batch = None
-      y_batch = None
+      # X_batch = None
+      # y_batch = None
 
       #########################################################################
       # TODO: Create a random minibatch of training data and labels, storing  #

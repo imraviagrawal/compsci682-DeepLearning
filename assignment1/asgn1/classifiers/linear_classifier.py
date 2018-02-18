@@ -35,11 +35,11 @@ class LinearClassifier(object):
     # Run stochastic gradient descent to optimize W
     loss_history = []
     for it in xrange(num_iters):
-      X_batch = None
-      y_batch = None
+      # X_batch = None
+      # y_batch = None
       #print("Here")
       #########################################################################
-      # TODO:                                                                 #
+      #                                                                 #
       # Sample batch_size elements from the training data and their           #
       # corresponding labels to use in this round of gradient descent.        #
       # Store the data in X_batch and their corresponding labels in           #
@@ -51,7 +51,7 @@ class LinearClassifier(object):
       #########################################################################
       #pass
       training_examples = np.arange(num_train)
-      index = np.random.choice(training_examples, batch_size,replace = True)
+      index = np.random.choice(training_examples, batch_size, replace = True)
       X_batch, y_batch = X[index], y[index]
       #########################################################################
       #                       END OF YOUR CODE                                #
