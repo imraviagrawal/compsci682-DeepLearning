@@ -155,6 +155,7 @@ def adam(x, dx, config=None):
   config["v"] = config["beta2"]*config["v"] + (1 - config["beta2"])*(dx**2)
   x += - config["learning_rate"]*config["m"]/(np.sqrt(config["v"]) + config["epsilon"])
   next_x = x
+  ## New line
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
