@@ -238,21 +238,17 @@ class FullyConnectedNet(object):
         scores = X
         forward_cache = {}
         for i in range(self.num_layers):
-            fc = "fc%d" % (i + 1)
-            fc_relu = "fc_relu%d" % (i + 1)
-            fc_batch = "fc_batch%d" % (i + 1)
-            weight = "W%d" % (i + 1)
-            bais =  "b%d" % (i + 1)
-            gamma = "gamma%d" %(i+ 1)
-            beta =  "beta%d" %(i + 1)
+            fc, fc_relu, fc_batch, weight, bais, gamma, beta = "fc%d" % (i + 1), "fc_relu%d" % (i + 1), "fc_batch%d" % (i + 1)\
+            ,"W%d" % (i + 1), "b%d" % (i + 1), "gamma%d" %(i+ 1), "beta%d" %(i + 1)
+
             if i == self.num_layers - 1:
                 scores, forward_cache[fc] = affine_forward(scores, self.params[weight], self.params[bais])
             else:
                 if self.use_batchnorm:
-                    scores, forward_cache[fc_batch] = batchnorm_forward(scores, self.params[gamma], self.params[beta], bn_param)
+                    scores, forward_cache[fc_batch] = batchnorm_forward(scores, self.params[gamma], self.params[beta], self.bn_params[i -1])
                 scores, forward_cache[fc] = affine_forward(scores, self.params[weight], self.params[bais])
                 scores, forward_cache[fc_relu] = relu_forward(scores)
-                #print("here")
+        #print("here")
         #
         ############################################################################
         # TODO: Implement the forward pass for the fully-connected net, computing  #
@@ -290,20 +286,24 @@ class FullyConnectedNet(object):
         # of 0.5 to simplify the expression for the gradient.                      #
         ############################################################################
         loss, dScore = softmax_loss(scores, y)
-        # Regularized loss
-        # for i in range(self.num_layers):
-        #     wieght = "W%d" % (i + 1)
-        #     loss += loss + 0.5 * self.reg * np.sum(self.params[weight] ** 2)
+        #Regularized loss
+        for i in range(self.num_layers):
+            wieght = "W%d" % (i + 1)
+            loss += loss + 0.5 * self.reg * np.sum(self.params[weight] ** 2)
 
         # backward pass
         for i in reversed(range(self.num_layers)):
-            weight, bais, fc, fc_relu  = "W%d" % (i + 1), "b%d" % (i + 1), "fc%d" % (i + 1), "fc_relu%d" % (i + 1)
+            weight, bais, fc, fc_relu, fc_batch, gamma, beta  = "W%d" % (i + 1), "b%d" % (i + 1), "fc%d" % (i + 1), "fc_relu%d" % (i + 1), "fc_batch%d" % (i + 1), "gamma%d" %(i + 1), "beta%d" %(i + 1)
             if i == self.num_layers - 1:
                 dx, grads[weight], grads[bais] = affine_backward(dScore, forward_cache[fc])
                 grads[weight] += self.reg * self.params[weight]
             else:
                 dx, grads[weight], grads[bais] = affine_relu_backward(dx,
                                                                       (forward_cache[fc], forward_cache[fc_relu]))
+                
+                if self.use_batchnorm:
+                    dx, grads[gamma], grads[beta] = batchnorm_backward(dx, forward_cache[fc_batch])
+
                 grads[weight] += self.reg * self.params[weight]
         ############################################################################
         #                             END OF YOUR CODE                             #
