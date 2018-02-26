@@ -196,7 +196,7 @@ def batchnorm_forward(x, gamma, beta, bn_param):
     running_mean = momentum*running_mean + (1 - momentum)*expected_mean
     running_var = momentum*running_var + (1 - momentum)*variance 
 
-    cahce = (x, eps, gamma, beta, expected_mean, variance, xhat)
+    cache = (x, eps, gamma, expected_mean, variance, xhat)
     #############################################################################
     #                             END OF YOUR CODE                              #
     #############################################################################
@@ -245,12 +245,19 @@ def batchnorm_backward(dout, cache):
   - dbeta: Gradient with respect to shift parameter beta, of shape (D,)
   """
   dx, dgamma, dbeta = None, None, None
-  x, eps, gamma, beta, expected_mean, variance, xhat = cache
+  #print(cache)
+  x, eps, gamma, expected_mean, variance, xhat = cache
   #############################################################################
   # TODO: Implement the backward pass for batch normalization. Store the      #
   # results in the dx, dgamma, and dbeta variables.                           #
   #############################################################################
   dxhat  = dout*gamma
+  sigma2e = variance + eps
+  xminusMean = x - expected_mean
+  m = x.shape[0]
+  dsigma_2 = np.sum(np.multiply(np.multiply(dxhat, xminusMean), (-1/2)*sigma2e**(-3/2)), axis = 0)
+  dmean = np.sum(np.multiply(dxhat,(-1/sigma2e**(1/2))), axis = 0) + np.multiply(dsigma_2, np.sum(-2*xminusMean, axis = 0)/m)
+  dx = np.multiply(dxhat, 1/sigma2e**0.5) + np.multiply(dsigma_2, (2*xminusMean)/m) + dmean/m
   dgamma = np.sum(np.multiply(dout, xhat), axis = 0)
   dbeta = np.sum(dout, axis = 0)
 
