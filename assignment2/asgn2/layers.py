@@ -183,6 +183,7 @@ def batchnorm_forward(x, gamma, beta, bn_param):
     # the momentum variable to update the running mean and running variance,    #
     # storing your result in the running_mean and running_var variables.        #
     #############################################################################
+  
     expected_mean = np.mean(x, axis = 0)
     variance  = np.var(x, axis = 0)
 
@@ -244,11 +245,15 @@ def batchnorm_backward(dout, cache):
   - dbeta: Gradient with respect to shift parameter beta, of shape (D,)
   """
   dx, dgamma, dbeta = None, None, None
+  x, eps, gamma, beta, expected_mean, variance, xhat = cache
   #############################################################################
   # TODO: Implement the backward pass for batch normalization. Store the      #
   # results in the dx, dgamma, and dbeta variables.                           #
   #############################################################################
-  pass
+  dxhat  = dout*gamma
+  dgamma = np.sum(np.multiply(dout, xhat), axis = 0)
+  dbeta = np.sum(dout, axis = 0)
+
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
