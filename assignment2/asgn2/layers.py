@@ -183,7 +183,19 @@ def batchnorm_forward(x, gamma, beta, bn_param):
     # the momentum variable to update the running mean and running variance,    #
     # storing your result in the running_mean and running_var variables.        #
     #############################################################################
-    pass
+    expected_mean = np.mean(x, axis = 0)
+    variance  = np.var(x, axis = 0)
+
+    # xhat
+    numerator = x - expected_mean
+    denominator = np.sqrt(variance + eps)
+    xhat = numerator/denominator
+
+    out = gamma*xhat + beta
+    running_mean = momentum*running_mean + (1 - momentum)*expected_mean
+    running_var = momentum*running_var + (1 - momentum)*variance 
+
+    cahce = (x, eps, gamma, beta, expected_mean, variance, xhat)
     #############################################################################
     #                             END OF YOUR CODE                              #
     #############################################################################
@@ -194,7 +206,13 @@ def batchnorm_forward(x, gamma, beta, bn_param):
     # and shift the normalized data using gamma and beta. Store the result in   #
     # the out variable.                                                         #
     #############################################################################
-    pass
+    #pass
+    numerator = (x - running_mean)
+    denominator = np.sqrt(running_var + eps)
+    
+    # xhat and out 
+    xhat = numerator/denominator
+    out = gamma*xhat + beta
     #############################################################################
     #                             END OF YOUR CODE                              #
     #############################################################################
