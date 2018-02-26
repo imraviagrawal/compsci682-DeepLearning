@@ -296,7 +296,7 @@ class FullyConnectedNet(object):
             weight, bais, fc, fc_relu, fc_batch, gamma, beta  = "W%d" % (i + 1), "b%d" % (i + 1), "fc%d" % (i + 1), "fc_relu%d" % (i + 1), "fc_batch%d" % (i + 1), "gamma%d" %(i + 1), "beta%d" %(i + 1)
             if i == self.num_layers - 1:
                 dx, grads[weight], grads[bais] = affine_backward(dScore, forward_cache[fc])
-                grads[weight] += self.reg * self.params[weight]
+                #grads[weight] += self.reg * self.params[weight]
             else:
                 dx, grads[weight], grads[bais] = affine_relu_backward(dx,
                                                                       (forward_cache[fc], forward_cache[fc_relu]))
@@ -304,7 +304,7 @@ class FullyConnectedNet(object):
                 if self.use_batchnorm:
                     dx, grads[gamma], grads[beta] = batchnorm_backward(dx, forward_cache[fc_batch])
 
-                grads[weight] += self.reg * self.params[weight]
+            grads[weight] += self.reg * self.params[weight]
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
