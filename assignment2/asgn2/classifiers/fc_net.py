@@ -179,13 +179,19 @@ class FullyConnectedNet(object):
             if dim == 0:
                 self.params["W%d" % (dim + 1)] = weight_scale * np.random.randn(input_dim, hidden_dims[dim])
                 self.params["b%d" % (dim + 1)] = np.zeros(hidden_dims[dim])
+                if self.use_batchnorm:
+                    self.params["gamma%d" %(dim + 1)] = np.ones(input_dim)
+                    self.params["beta%d" %(dim + 1)] = np.zeros((input_dim))
             elif dim == self.num_layers - 1:
                 self.params["W%d" % (dim + 1)] = weight_scale * np.random.randn(hidden_dims[dim - 1], num_classes)
                 self.params["b%d" % (dim + 1)] = np.zeros(num_classes)
+
             else:
                 self.params["W%d" % (dim + 1)] = weight_scale * np.random.randn(hidden_dims[dim - 1], hidden_dims[dim])
                 self.params["b%d" % (dim + 1)] = np.zeros(hidden_dims[dim])
-
+                if self.use_batchnorm:
+                    self.params["gamma%d" %(dim + 1)] = np.ones(hidden_dims[dim - 1])
+                    self.params["beta%d" %(dim + 1)] = np.zeros((hidden_dims[dim - 1]))
         # print(self.params)
         ############################################################################
         #                             END OF YOUR CODE                             #
@@ -232,15 +238,22 @@ class FullyConnectedNet(object):
         scores = X
         forward_cache = {}
         for i in range(self.num_layers):
-            fc, fc_relu, weight, bais = "fc%d" % (i + 1), "fc_relu%d" % (i + 1), "W%d" % (i + 1), "b%d" % (
-                        i + 1)
+            fc = "fc%d" % (i + 1)
+            fc_relu = "fc_relu%d" % (i + 1)
+            fc_batch = "fc_batch%d" % (i + 1)
+            weight = "W%d" % (i + 1)
+            bais =  "b%d" % (i + 1)
+            gamma = "gamma%d" %(i+ 1)
+            beta =  "beta%d" %(i + 1)
             if i == self.num_layers - 1:
                 scores, forward_cache[fc] = affine_forward(scores, self.params[weight], self.params[bais])
             else:
-
+                if self.use_batchnorm:
+                    scores, forward_cache[fc_batch] = batchnorm_forward(scores, self.params[gamma], self.params[beta], bn_param)
                 scores, forward_cache[fc] = affine_forward(scores, self.params[weight], self.params[bais])
                 scores, forward_cache[fc_relu] = relu_forward(scores)
-
+                #print("here")
+        #
         ############################################################################
         # TODO: Implement the forward pass for the fully-connected net, computing  #
         # the class scores for X and storing them in the scores variable.          #
