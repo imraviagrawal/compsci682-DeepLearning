@@ -255,12 +255,14 @@ def batchnorm_backward(dout, cache):
   sigma2e = variance + eps
   xminusMean = x - expected_mean
   m = x.shape[0]
-  dsigma_2 = np.sum(np.multiply(np.multiply(dxhat, xminusMean), (-1/2)*sigma2e**(-3/2)), axis = 0)
-  dmean = np.sum(np.multiply(dxhat,(-1/sigma2e**(1/2))), axis = 0) + np.multiply(dsigma_2, np.sum(-2*xminusMean, axis = 0)/m)
-  dx = np.multiply(dxhat, 1/sigma2e**0.5) + np.multiply(dsigma_2, (2*xminusMean)/m) + dmean/m
+  # print(dout.shape[0] == x.shape[0])
+  dsigma_2 = np.sum(np.multiply(np.multiply(dxhat,xminusMean),(-0.5)*(sigma2e**(-1.5))), axis = 0)
+  dmean = np.sum(np.multiply(dxhat,(-1/np.sqrt(sigma2e))), axis = 0) + dsigma_2*(np.sum(-2.0*xminusMean, axis = 0))/m
+  dx =  np.multiply(dxhat,(1/np.sqrt(sigma2e))) + np.multiply(dsigma_2,(2*xminusMean)/m) + dmean/m
   dgamma = np.sum(np.multiply(dout, xhat), axis = 0)
   dbeta = np.sum(dout, axis = 0)
 
+  #print(dx)
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
