@@ -191,7 +191,7 @@ class FullyConnectedNet(object):
                 self.params["b%d" % (dim + 1)] = np.zeros(hidden_dims[dim])
                 if self.use_batchnorm:
                     self.params["gamma%d" %(dim + 1)] = np.ones(hidden_dims[dim - 1])
-                    self.params["beta%d" %(dim + 1)] = np.zeros((hidden_dims[dim - 1])
+                    self.params["beta%d" %(dim + 1)] = np.zeros((hidden_dims[dim - 1]))
 
         # print(self.params)
         ############################################################################
@@ -239,8 +239,8 @@ class FullyConnectedNet(object):
         scores = X
         forward_cache = {}
         for i in range(self.num_layers):
-            fc, fc_relu, fc_batch, weight, bais, gamma, beta = "fc%d" % (i + 1), "fc_relu%d" % (i + 1), "fc_batch%d" % (i + 1)\
-            ,"W%d" % (i + 1), "b%d" % (i + 1), "gamma%d" %(i+ 1), "beta%d" %(i + 1)
+            fc, fc_relu, fc_batch, weight, bais, gamma, beta, dropo = "fc%d" % (i + 1), "fc_relu%d" % (i + 1), "fc_batch%d" % (i + 1)\
+            ,"W%d" % (i + 1), "b%d" % (i + 1), "gamma%d" %(i+ 1), "beta%d" %(i + 1),"dropout%d" %(i + 1)
 
             if i == self.num_layers - 1:
                 scores, forward_cache[fc] = affine_forward(scores, self.params[weight], self.params[bais])
@@ -249,6 +249,8 @@ class FullyConnectedNet(object):
                     scores, forward_cache[fc_batch] = batchnorm_forward(scores, self.params[gamma], self.params[beta], self.bn_params[i -1])
                 scores, forward_cache[fc] = affine_forward(scores, self.params[weight], self.params[bais])
                 scores, forward_cache[fc_relu] = relu_forward(scores)
+                if self.use_dropout:
+                    scores, forward_cache[dropo] = dropout_forward(scores, self.dropout_param)
         #print("here")
         #
         ############################################################################
@@ -294,11 +296,14 @@ class FullyConnectedNet(object):
 
         # backward pass
         for i in reversed(range(self.num_layers)):
-            weight, bais, fc, fc_relu, fc_batch, gamma, beta  = "W%d" % (i + 1), "b%d" % (i + 1), "fc%d" % (i + 1), "fc_relu%d" % (i + 1), "fc_batch%d" % (i + 1), "gamma%d" %(i + 1), "beta%d" %(i + 1)
+            weight, bais, fc, fc_relu, fc_batch, gamma, beta, dropo  = "W%d" % (i + 1), "b%d" % (i + 1), "fc%d" % (i + 1), "fc_relu%d" % (i + 1), "fc_batch%d" % (i + 1), "gamma%d" %(i + 1), "beta%d" %(i + 1), "dropout%d" %(i + 1)
             if i == self.num_layers - 1:
                 dx, grads[weight], grads[bais] = affine_backward(dScore, forward_cache[fc])
                 #grads[weight] += self.reg * self.params[weight]
             else:
+                if self.use_dropout:
+                    dx = dropout_backward(dx, forward_cache[dropo])
+
                 dx, grads[weight], grads[bais] = affine_relu_backward(dx,
                                                                       (forward_cache[fc], forward_cache[fc_relu]))
                 
