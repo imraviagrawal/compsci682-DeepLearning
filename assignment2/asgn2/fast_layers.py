@@ -1,4 +1,6 @@
 import numpy as np
+import pyximport
+pyximport.install()
 try:
   from asgn2.im2col_cython import col2im_cython, im2col_cython
   from asgn2.im2col_cython import col2im_6d_cython

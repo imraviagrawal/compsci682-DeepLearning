@@ -191,7 +191,8 @@ class FullyConnectedNet(object):
                 self.params["b%d" % (dim + 1)] = np.zeros(hidden_dims[dim])
                 if self.use_batchnorm:
                     self.params["gamma%d" %(dim + 1)] = np.ones(hidden_dims[dim - 1])
-                    self.params["beta%d" %(dim + 1)] = np.zeros((hidden_dims[dim - 1]))
+                    self.params["beta%d" %(dim + 1)] = np.zeros((hidden_dims[dim - 1])
+
         # print(self.params)
         ############################################################################
         #                             END OF YOUR CODE                             #
