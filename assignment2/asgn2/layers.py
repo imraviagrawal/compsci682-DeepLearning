@@ -531,7 +531,12 @@ def max_pool_forward_naive(x, pool_param):
   #############################################################################
   # TODO: Implement the max pooling forward pass                              #
   #############################################################################
-  pass
+  for n in range(N):
+    for c in range(C):
+      for out_h in range(out_pool_H):
+        for  out_w in range(out_pool_W):
+          current_x = None
+          out[n, c, out_h, out_w] = np.max(current_x)
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
