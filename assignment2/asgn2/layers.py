@@ -481,11 +481,19 @@ def conv_backward_naive(dout, cache):
   out_H =  1 + (H + 2 * padding - HH) / strides
   out_W =  1 + (W + 2 * padding - WW) / strides
   
-  dx, dw, db = None, None, None
+  dx, dw, db = np.zeros((x.shape)), np.zeros((w.shape)), np.zeros((b.shape))
   #############################################################################
   # TODO: Implement the convolutional backward pass.                          #
   #############################################################################
-  pass
+  for n in range(N):
+    for filt in range(F):
+      for out_h in range(out_H):
+        for  out_w in range(out_W):
+          current_dout = dout[n, filt, out_h, out_w]
+          current_w = w[filt, :, :, :]
+          current_x = x[n, :, out_h*strides : out_h*strides + HH, out_w*strides:out_w*strides+W]
+          dx[n, :, out_h*strides : out_h*strides + HH, out_w*strides:out_w*strides+W] += current_w*current_dout
+          dw[filt,:,:,:] = None
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
