@@ -571,7 +571,8 @@ def max_pool_backward_naive(dout, cache):
       for out_h in range(out_pool_H):
         for  out_w in range(out_pool_W):
           current_x = x[n, c, out_h*stride: out_h*stride + pool_height, out_w*stride: out_w*stride+pool_width]
-          pass
+          current_x = current_x == np.max(current_x)
+          print(current_x*dout[n, c, out_h*stride: out_h*stride + pool_height, out_w*stride: out_w*stride+pool_width])
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
