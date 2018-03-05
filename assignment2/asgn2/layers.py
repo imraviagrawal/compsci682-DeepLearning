@@ -481,7 +481,7 @@ def conv_backward_naive(dout, cache):
   out_H =  1 + (H + 2 * padding - HH) / strides
   out_W =  1 + (W + 2 * padding - WW) / strides
   
-  dx, dw, db = np.zeros((x.shape)), np.zeros((w.shape)), np.zeros((b.shape))
+  dx, dw, db = np.zeros((x.shape)), np.zeros((w.shape)), np.sum(dout, axis = (0, 2, 3))
   #############################################################################
   # TODO: Implement the convolutional backward pass.                          #
   #############################################################################
