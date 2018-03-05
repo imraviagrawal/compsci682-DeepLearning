@@ -466,6 +466,21 @@ def conv_backward_naive(dout, cache):
   - dw: Gradient with respect to w
   - db: Gradient with respect to b
   """
+  x, w, b, conv_param = cache
+  
+  (F, C, HH, WW) = w.shape
+  #print(F, C)
+  (N, C, H, W) = x.shape
+  
+  padding = conv_param['pad']
+  #print(padding)
+  strides = conv_param["stride"]
+  #print(strides)
+
+
+  out_H =  1 + (H + 2 * padding - HH) / strides
+  out_W =  1 + (W + 2 * padding - WW) / strides
+  
   dx, dw, db = None, None, None
   #############################################################################
   # TODO: Implement the convolutional backward pass.                          #
