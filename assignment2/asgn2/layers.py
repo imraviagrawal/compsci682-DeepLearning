@@ -535,7 +535,7 @@ def max_pool_forward_naive(x, pool_param):
     for c in range(C):
       for out_h in range(out_pool_H):
         for  out_w in range(out_pool_W):
-          current_x = None
+          current_x = x[n, c, out_h*stride: out_h*stride + pool_height, out_w*stride: out_w*stride+pool_width]
           out[n, c, out_h, out_w] = np.max(current_x)
   #############################################################################
   #                             END OF YOUR CODE                              #
