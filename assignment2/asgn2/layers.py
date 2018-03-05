@@ -416,11 +416,11 @@ def conv_forward_naive(x, w, b, conv_param):
   out = None
 
 
-  out_H =  1 + (H + 2 * padding - HH) / strides
-  out_W =  1 + (W + 2 * padding - WW) / strides
+  out_H =  1 + (H + 2 * padding - HH) / strides 
+  out_W =  1 + (W + 2 * padding - WW) / strides 
   #print(out_H, out_W)
   
-  out = np.zeros((N, C, out_H, out_W))
+  out = np.zeros((N, F, out_H, out_W))
   #############################################################################
   # TODO: Implement the convolutional forward pass.                           #
   # Hint: you can use the function np.pad for padding.                        #
@@ -444,8 +444,8 @@ def conv_forward_naive(x, w, b, conv_param):
           x_w = current_x*current_W
           out[n, filt, out_h, out_w] = np.sum(x_w) + b[filt]
           #print(x_w.shape)
-        #pass
-          
+        #pass   
+  #print(out.shape)
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
@@ -467,7 +467,7 @@ def conv_backward_naive(dout, cache):
   - db: Gradient with respect to b
   """
   x, w, b, conv_param = cache
-  
+  dx, dw, db = np.zeros(x.shape), np.zeros(w.shape), np.sum(dout, axis = (0, 2, 3))
   (F, C, HH, WW) = w.shape
   #print(F, C)
   (N, C, H, W) = x.shape
@@ -478,10 +478,10 @@ def conv_backward_naive(dout, cache):
   #print(strides)
 
 
-  out_H =  1 + (H + 2 * padding - HH) / strides
-  out_W =  1 + (W + 2 * padding - WW) / strides
+  out_H =  1 + (H - HH) / strides
+  out_W =  1 + (W - WW) / strides
   
-  dx, dw, db = np.zeros((x.shape)), np.zeros((w.shape)), np.sum(dout, axis = (0, 2, 3))
+  
   #############################################################################
   # TODO: Implement the convolutional backward pass.                          #
   #############################################################################
@@ -491,8 +491,9 @@ def conv_backward_naive(dout, cache):
         for  out_w in range(out_W):
           current_dout = dout[n, filt, out_h, out_w]
           current_w = w[filt, :, :, :]
-          current_x = x[n, :, out_h*strides : out_h*strides + HH, out_w*strides:out_w*strides+W]
-          dx[n, :, out_h*strides : out_h*strides + HH, out_w*strides:out_w*strides+W] += current_w*current_dout
+          current_x = x[n, :, out_h*strides : out_h*strides + HH, out_w*strides:out_w*strides+WW]
+          #print(current_dout.shape, current_w.shape, current_x.shape)
+          dx[n, :, out_h*strides : out_h*strides + HH, out_w*strides:out_w*strides+WW] += current_w*current_dout
           dw[filt,:,:,:] += current_x*current_dout
 
 
