@@ -520,6 +520,10 @@ def max_pool_forward_naive(x, pool_param):
   - out: Output data
   - cache: (x, pool_param)
   """
+  (N, C, H, W) = x.shape
+  pool_height = pool_param['pool_height']
+  pool_width  = pool_param['pool_width']
+  stride      = pool_param['stride']
   out = None
   #############################################################################
   # TODO: Implement the max pooling forward pass                              #
