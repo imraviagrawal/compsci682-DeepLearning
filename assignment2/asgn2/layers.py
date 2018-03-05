@@ -494,6 +494,10 @@ def conv_backward_naive(dout, cache):
           current_x = x[n, :, out_h*strides : out_h*strides + HH, out_w*strides:out_w*strides+W]
           dx[n, :, out_h*strides : out_h*strides + HH, out_w*strides:out_w*strides+W] += current_w*current_dout
           dw[filt,:,:,:] += current_x*current_dout
+
+
+  #dx
+  dx = dx[:, :, padding:-padding, padding:-padding]
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
