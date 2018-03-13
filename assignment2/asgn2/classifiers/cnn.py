@@ -113,7 +113,7 @@ class ThreeLayerConvNet(object):
     grads["W3"] += self.reg * self.params["W3"]
     dx, grads["W2"], grads["b2"] = affine_relu_backward(dx, cache_relu)
     grads["W2"] += self.reg * self.params["W2"]
-    dx, grads["W1"], grads["b1"] = conv_relu_backward(dx, cache_conv)
+    dx, grads["W1"], grads["b1"] = conv_relu_pool_backward(dx, cache_conv)
     grads["W1"] += self.reg * self.params["W1"]
     ############################################################################
     #                             END OF YOUR CODE                             #
