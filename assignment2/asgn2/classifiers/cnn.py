@@ -48,9 +48,9 @@ class ThreeLayerConvNet(object):
     # of the output affine layer.                                              #
     ############################################################################
     
-    self.params["W1"] = weight_scale * np.random.randn(input_dim, hidden_dim)
-    self.params["b1"] = np.zeros(hidden_dim)
-    self.params["W2"] = weight_scale * np.random.randn(hidden_dim, hidden_dim)
+    self.params["W1"] = weight_scale * np.random.randn(num_filters, input_dim[0], filter_size, filter_size)
+    self.params["b1"] = np.zeros(num_filters)
+    self.params["W2"] = weight_scale * np.random.randn(num_filters*(input_dim[1]/2)*(input_dim[2]/2), hidden_dim)
     self.params["b2"] = np.zeros(hidden_dim)
     self.params["W3"] = weight_scale * np.random.randn(hidden_dim, num_classes)
     self.params["b3"] = np.zeros(num_classes)
@@ -83,9 +83,13 @@ class ThreeLayerConvNet(object):
     ############################################################################
     # TODO: Implement the forward pass for the three-layer convolutional net,  #
     # computing the class scores for X and storing them in the scores          #
-    # variable.                                                                #
+    # variable.     
+    # conv - relu - 2x2 max pool - affine - relu - affine - softmax                                                           #
     ############################################################################
     #pass
+    out, cache_conv      = conv_relu_pool_forward(X, W1, b1, conv_param, pool_param)
+    out, cache_relu      = affine_relu_forward(out, W2, b2)
+    scores, cache_affine = affineaffine_forward(out, W3, b3)
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
@@ -101,6 +105,14 @@ class ThreeLayerConvNet(object):
     # for self.params[k]. Don't forget to add L2 regularization!               #
     ############################################################################
     pass
+    loss, dScore = softmax_loss(scores, y)
+    # Regularized loss
+    loss = loss + 0.5 * self.reg * np.sum(self.params["W1"] ** 2) + 0.5 * self.reg * np.sum(self.params["W2"] ** 2) + 0.5 * self.reg * np.sum(self.params["W3"] ** 2)
+    
+    dx, grads["W3"], grads["b3"] = affine_backward(dScore, cache_affine)
+    grads["W3"] += self.reg * self.params["W3"]
+    dx, grads["W2"], grads["b2"] = affine_relu_backward(dx, cache_relu)
+    grads["W2"] += self.reg * self.params["W2"]
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
