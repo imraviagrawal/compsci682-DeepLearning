@@ -112,9 +112,10 @@ class MyAwesomeNet(object):
     #conv_bactchnorm_relu_pool_forward(x, w, b, gamma, beta, conv_param, pool_param, bn_param)
     out, cache_conv1     = conv_bactchnorm_relu_pool_forward(X, W1, b1, gamma1, beta1, conv_param, pool_param, self.bn_params[0])
     out, cache_conv2     = conv_relu_pool_forward(out, W2, b2, conv_param, pool_param)
-    out, cache_fc_batch  = batchnorm_forward(out, gamma3, beta3, self.bn_params[2])
-    out, cache_relu      = affine_relu_forward(out, W3, b3)
-    out, cache_dropout   = dropout_forward(out, self.dropout_param)
+    out, cachce_brdf          = affine_batchnorm_relu_dropout_forward(out, W3, b3, gamma3, beta3, self.bn_params[2], self.dropout_param)
+    # out, cache_fc_batch  = batchnorm_forward(out, gamma3, beta3, self.bn_params[2])
+    # out, cache_relu      = affine_relu_forward(out, W3, b3)
+    # out, cache_dropout   = dropout_forward(out, self.dropout_param)
     scores, cache_affine = affine_forward(out, W4, b4)
     ############################################################################
     #                             END OF YOUR CODE                             #
@@ -132,16 +133,18 @@ class MyAwesomeNet(object):
     ############################################################################
     #pass
     loss, dScore = softmax_loss(scores, y)
+    print(loss)
     # Regularized loss
     loss = loss + 0.5 * self.reg * np.sum(self.params["W1"] ** 2) + 0.5 * self.reg * np.sum(self.params["W2"] ** 2) + 0.5 * self.reg * np.sum(self.params["W3"] ** 2) + 0.5 * self.reg * np.sum(self.params["W4"] ** 2)
     dx, grads["W4"], grads["b4"] = affine_backward(dScore, cache_affine)
     grads["W4"] += self.reg * self.params["W4"]
+    dx, grads["W3"], grads["b3"] = conv_relu_pool_backward(dx, cache_conv2)
+    grads["W2"] += self.reg * self.params["W2"]
     dx = dropout_backward(dx, cache_dropout)
     dx, grads["W3"], grads["b3"] = affine_relu_backward(dx, cache_relu)
     grads["W3"] += self.reg * self.params["W3"]
     dx, grads['gamma3'], grads['beta3'] = batchnorm_backward(dx, cache_fc_batch)
-    dx, grads["W2"], grads["b2"] = conv_relu_pool_backward(dx, cache_conv2)
-    grads["W2"] += self.reg * self.params["W2"]
+
     dx, grads["W1"], grads["b1"], grads['gamma1'], grads['beta1'] = conv_batchnorm_relu_pool_backward(dx, cache_conv1)
     ############################################################################
     #                             END OF YOUR CODE                             #
