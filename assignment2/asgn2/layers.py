@@ -467,14 +467,17 @@ def conv_backward_naive(dout, cache):
   - db: Gradient with respect to b
   """
   x, w, b, conv_param = cache
+  padding = conv_param['pad']
+  #print(padding)
+  strides = conv_param["stride"]
   dx, dw, db = np.zeros(x.shape), np.zeros(w.shape), np.sum(dout, axis = (0, 2, 3))
   (F, C, HH, WW) = w.shape
   #print(F, C)
   (N, C, H, W) = x.shape
   
-  padding = conv_param['pad']
-  #print(padding)
-  strides = conv_param["stride"]
+  # padding = conv_param['pad']
+  # #print(padding)
+  # strides = conv_param["stride"]
   #print(strides)
 
 
@@ -611,12 +614,17 @@ def spatial_batchnorm_forward(x, gamma, beta, bn_param):
   # version of batch normalization defined above. Your implementation should  #
   # be very short; ours is less than five lines.                              #
   #############################################################################
-  pass
+  first_transpose = (0,2,3,1)
+  second_transpose = (0,3,1,2)
+  x_trans = x.transpose(first_transpose)
+  out, cache = batchnorm_forward(x_trans.reshape(-1, x.shape[1]), gamma, beta, bn_param)
+  out = out.reshape(*x_trans.shape)
+  out_final = out.transpose(second_transpose)
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
 
-  return out, cache
+  return out_final, cache
 
 
 def spatial_batchnorm_backward(dout, cache):
