@@ -101,7 +101,7 @@ class MyAwesomeNet(object):
     scores = None
     if y is None:
         for params in self.bn_params:
-            params[mode] = "test"
+            params['mode'] = "test"
     ############################################################################
     # TODO: Implement the forward pass for the three-layer convolutional net,  #
     # computing the class scores for X and storing them in the scores          #
@@ -133,17 +133,16 @@ class MyAwesomeNet(object):
     ############################################################################
     #pass
     loss, dScore = softmax_loss(scores, y)
-    print(loss)
     # Regularized loss
     loss = loss + 0.5 * self.reg * np.sum(self.params["W1"] ** 2) + 0.5 * self.reg * np.sum(self.params["W2"] ** 2) + 0.5 * self.reg * np.sum(self.params["W3"] ** 2) + 0.5 * self.reg * np.sum(self.params["W4"] ** 2)
     dx, grads["W4"], grads["b4"] = affine_backward(dScore, cache_affine)
     grads["W4"] += self.reg * self.params["W4"]
-    dx, grads["W3"], grads["b3"] = conv_relu_pool_backward(dx, cache_conv2)
-    grads["W2"] += self.reg * self.params["W2"]
-    dx = dropout_backward(dx, cache_dropout)
-    dx, grads["W3"], grads["b3"] = affine_relu_backward(dx, cache_relu)
+
+    dx, grads["W3"], grads["b3"], grads['gamma3'], grads['beta3'] = affine_batchnorm_relu_dropout_backward(dx, cachce_brdf)
     grads["W3"] += self.reg * self.params["W3"]
-    dx, grads['gamma3'], grads['beta3'] = batchnorm_backward(dx, cache_fc_batch)
+
+    dx, grads["W2"], grads["b2"] = conv_relu_pool_backward(dx, cache_conv2)
+    grads["W2"] += self.reg * self.params["W2"]
 
     dx, grads["W1"], grads["b1"], grads['gamma1'], grads['beta1'] = conv_batchnorm_relu_pool_backward(dx, cache_conv1)
     ############################################################################
