@@ -65,8 +65,8 @@ class MyAwesomeNet(object):
     #print(num_filters[1]*(input_dim[1]/4)*(input_dim[2]/4), hidden_dim)
     self.params["W3"] = weight_scale * np.random.randn(num_filters[1]*(input_dim[1]/4)*(input_dim[2]/4), hidden_dim)
     self.params["b3"] = np.zeros(hidden_dim)
-    self.params["gamma3"] = np.ones(hidden_dim)
-    self.params["beta3"] = np.zeros(hidden_dim)
+    self.params["gamma2"] = np.ones(hidden_dim)
+    self.params["beta2"] = np.zeros(hidden_dim)
     self.params["W4"] = weight_scale * np.random.randn(hidden_dim, num_classes)
     self.params["b4"] = np.zeros(num_classes)
     ############################################################################
@@ -89,7 +89,7 @@ class MyAwesomeNet(object):
     W4, b4 = self.params['W4'], self.params['b4']
     gamma1, beta1 = self.params["gamma1"], self.params["beta1"]
     #gamma2, beta2 = self.params["gamma2"], self.params["beta2"]
-    gamma3, beta3 = self.params["gamma3"], self.params["beta3"]
+    gamma2, beta2 = self.params["gamma2"], self.params["beta2"]
 
     # pass conv_param to the forward pass for the convolutional layer
     filter_size = W1.shape[2]
@@ -99,9 +99,6 @@ class MyAwesomeNet(object):
     pool_param = {'pool_height': 2, 'pool_width': 2, 'stride': 2}
 
     scores = None
-    if y is None:
-        for params in self.bn_params:
-            params['mode'] = "test"
     ############################################################################
     # TODO: Implement the forward pass for the three-layer convolutional net,  #
     # computing the class scores for X and storing them in the scores          #
@@ -112,7 +109,7 @@ class MyAwesomeNet(object):
     #conv_bactchnorm_relu_pool_forward(x, w, b, gamma, beta, conv_param, pool_param, bn_param)
     out, cache_conv1     = conv_bactchnorm_relu_pool_forward(X, W1, b1, gamma1, beta1, conv_param, pool_param, self.bn_params[0])
     out, cache_conv2     = conv_relu_pool_forward(out, W2, b2, conv_param, pool_param)
-    out, cachce_brdf          = affine_batchnorm_relu_dropout_forward(out, W3, b3, gamma3, beta3, self.bn_params[2], self.dropout_param)
+    out, cachce_brdf          = affine_batchnorm_relu_dropout_forward(out, W3, b3, gamma2, beta2, self.bn_params[2], self.dropout_param)
     # out, cache_fc_batch  = batchnorm_forward(out, gamma3, beta3, self.bn_params[2])
     # out, cache_relu      = affine_relu_forward(out, W3, b3)
     # out, cache_dropout   = dropout_forward(out, self.dropout_param)
@@ -138,7 +135,7 @@ class MyAwesomeNet(object):
     dx, grads["W4"], grads["b4"] = affine_backward(dScore, cache_affine)
     grads["W4"] += self.reg * self.params["W4"]
 
-    dx, grads["W3"], grads["b3"], grads['gamma3'], grads['beta3'] = affine_batchnorm_relu_dropout_backward(dx, cachce_brdf)
+    dx, grads["W3"], grads["b3"], grads['gamma2'], grads['beta2'] = affine_batchnorm_relu_dropout_backward(dx, cachce_brdf)
     grads["W3"] += self.reg * self.params["W3"]
 
     dx, grads["W2"], grads["b2"] = conv_relu_pool_backward(dx, cache_conv2)
