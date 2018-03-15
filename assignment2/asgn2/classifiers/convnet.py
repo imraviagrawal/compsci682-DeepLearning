@@ -136,12 +136,12 @@ class ThreeLayerConvNet(object):
     dx, grads["W4"], grads["b4"] = affine_backward(dScore, cache_affine)
     grads["W4"] += self.reg * self.params["W4"]
     dx = dropout_backward(dx, cache_dropout)
-    dx, grads["W3"], grads["b3"] = affine_backward(dScore, cache_affine)
+    dx, grads["W3"], grads["b3"] = affine_relu_backward(dx, cache_relu)
     grads["W3"] += self.reg * self.params["W3"]
-    dx, grads["W2"], grads["b2"] = affine_relu_backward(dx, cache_relu)
+    dx, grads['gamma3'], grads['beta3'] = batchnorm_backward(dx, cache_fc_batch)
+    dx, grads["W2"], grads["b2"] = conv_relu_pool_backward(dx, cache_conv2)
     grads["W2"] += self.reg * self.params["W2"]
-    dx, grads["W1"], grads["b1"] = conv_relu_pool_backward(dx, cache_conv)
-    grads["W1"] += self.reg * self.params["W1"]
+    dx, grads["W1"], grads["b1"], grads['gamma1'], grads['beta1'] = conv_batchnorm_relu_pool_backward(dx, cache_conv1)
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
