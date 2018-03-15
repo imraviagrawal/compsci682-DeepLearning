@@ -177,21 +177,21 @@ class FullyConnectedNet(object):
         ############################################################################
         for dim in range(self.num_layers):
             if dim == 0:
-                #self.params["W%d" % (dim + 1)] = weight_scale * np.random.randn(input_dim, hidden_dims[dim])
-                self.params["W%d" % (dim + 1)] = np.random.normal(scale =  weight_scale , size = (input_dim, hidden_dims[dim]))
+                self.params["W%d" % (dim + 1)] = weight_scale * np.random.randn(input_dim, hidden_dims[dim])
+                #self.params["W%d" % (dim + 1)] = np.random.normal(scale =  weight_scale , size = (input_dim, hidden_dims[dim]))
                 self.params["b%d" % (dim + 1)] = np.zeros(hidden_dims[dim])
                 if self.use_batchnorm:
                     self.params["gamma%d" %(dim + 1)] = np.ones(input_dim)
                     self.params["beta%d" %(dim + 1)] = np.zeros((input_dim))
             elif dim == self.num_layers - 1:
-                #self.params["W%d" % (dim + 1)] = weight_scale * np.random.randn(hidden_dims[dim - 1], num_classes)
-                self.params["W%d" % (dim + 1)] = np.random.normal(scale =  weight_scale , size = (hidden_dims[dim - 1], num_classes))
+                self.params["W%d" % (dim + 1)] = weight_scale * np.random.randn(hidden_dims[dim - 1], num_classes)
+                #self.params["W%d" % (dim + 1)] = np.random.normal(scale =  weight_scale , size = (hidden_dims[dim - 1], num_classes))
                 self.params["b%d" % (dim + 1)] = np.zeros(num_classes)
 
             else:
                 # Some reason the randn is not working properly
-                #self.params["W%d" % (dim + 1)] = weight_scale * np.random.randn(hidden_dims[dim - 1], hidden_dims[dim])
-                self.params["W%d" % (dim + 1)] = np.random.normal(scale =  weight_scale , size = (hidden_dims[dim - 1], hidden_dims[dim]))
+                self.params["W%d" % (dim + 1)] = weight_scale * np.random.randn(hidden_dims[dim - 1], hidden_dims[dim])
+                #self.params["W%d" % (dim + 1)] = np.random.normal(scale =  weight_scale , size = (hidden_dims[dim - 1], hidden_dims[dim]))
                 self.params["b%d" % (dim + 1)] = np.zeros(hidden_dims[dim])
                 if self.use_batchnorm:
                     self.params["gamma%d" %(dim + 1)] = np.ones(hidden_dims[dim - 1])
@@ -251,14 +251,17 @@ class FullyConnectedNet(object):
                 scores, forward_cache[fc] = affine_forward(scores, self.params[weight], self.params[bais])
                 
             else:
-                if self.use_batchnorm:
-                    #print("batch out here")
-                    scores, forward_cache[fc_batch] = batchnorm_forward(scores, self.params[gamma], self.params[beta], self.bn_params[i -1])
-                scores, forward_cache[fc] = affine_forward(scores, self.params[weight], self.params[bais])
-                scores, forward_cache[fc_relu] = relu_forward(scores)
-                if self.use_dropout:
-                    #print("drop out here")
-                    scores, forward_cache[dropo] = dropout_forward(scores, self.dropout_param)
+                if self.use_batchnorm and self.use_dropout:
+                    scores, forward_cache[fc] = affine_batchnorm_relu_dropout_forward(scores, self.params[weight], self.params[bais], self.params[gamma], self.params[beta], self.bn_params[i -1], self.dropout_param)
+                else:
+                    if self.use_batchnorm:
+                        #print("batch out here")
+                        scores, forward_cache[fc_batch] = batchnorm_forward(scores, self.params[gamma], self.params[beta], self.bn_params[i -1])
+                    scores, forward_cache[fc] = affine_forward(scores, self.params[weight], self.params[bais])
+                    scores, forward_cache[fc_relu] = relu_forward(scores)
+                    if self.use_dropout:
+                        #print("drop out here")
+                        scores, forward_cache[dropo] = dropout_forward(scores, self.dropout_param)
         #print("here")
         #
         ############################################################################
@@ -308,18 +311,21 @@ class FullyConnectedNet(object):
             #print(weight, bais, fc, fc_relu, fc_batch, gamma, beta, dropo)
             if i == self.num_layers - 1:
                 dx, grads[weight], grads[bais] = affine_backward(dScore, forward_cache[fc])
-                #grads[weight] =grads[weight] +  self.reg * self.params[weight]
+                grads[weight] =grads[weight] +  self.reg * self.params[weight]
             else:
-                if self.use_dropout:
-                    dx = dropout_backward(dx, forward_cache[dropo])
+                if self.use_dropout and self.use_batchnorm:
+                    dx,grads[weight], grads[bais], grads[gamma], grads[beta] =affine_batchnorm_relu_dropout_backward(dx, forward_cache[fc])
+                else:
+                    if self.use_dropout:
+                        dx = dropout_backward(dx, forward_cache[dropo])
 
-                dx, grads[weight], grads[bais] = affine_relu_backward(dx,
-                                                                      (forward_cache[fc], forward_cache[fc_relu]))
-                
-                if self.use_batchnorm:
-                    dx, grads[gamma], grads[beta] = batchnorm_backward(dx, forward_cache[fc_batch])
+                    dx, grads[weight], grads[bais] = affine_relu_backward(dx,
+                                                                          (forward_cache[fc], forward_cache[fc_relu]))
+                    
+                    if self.use_batchnorm:
+                        dx, grads[gamma], grads[beta] = batchnorm_backward(dx, forward_cache[fc_batch])
 
-                #grads[weight] = grads[weight]+  self.reg * self.params[weight]
+                grads[weight] = grads[weight]+  self.reg * self.params[weight]
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
