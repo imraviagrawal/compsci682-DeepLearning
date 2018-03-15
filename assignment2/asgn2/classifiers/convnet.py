@@ -56,10 +56,16 @@ class ThreeLayerConvNet(object):
     
     self.params["W1"] = weight_scale * np.random.randn(num_filters[0], input_dim[0], filter_size, filter_size)
     self.params["b1"] = np.zeros(num_filters[0])
+    self.params["gamma1"] = np.ones(num_filters[0])
+    self.params["beta1"] = np.zeros(num_filters[0])
     self.params["W2"] = weight_scale * np.random.randn(num_filters[1], num_filters[0], filter_size, filter_size)
     self.params["b2"] = np.zeros(num_filters[1])
+    #self.params["gamma2"] = np.ones(num_filters[1])
+    #self.params["beta2"] = np.zeros(num_filters[1])
     self.params["W3"] = weight_scale * np.random.randn(num_filters[1]*(input_dim[1]/4)*(input_dim[2]/4), hidden_dim)
     self.params["b3"] = np.zeros(hidden_dim)
+    self.params["gamma3"] = np.ones(hidden_dim)
+    self.params["beta3"] = np.zeros(hidden_dim)
     self.params["W4"] = weight_scale * np.random.randn(hidden_dim, num_classes)
     self.params["b4"] = np.zeros(num_classes)
     ############################################################################
@@ -80,6 +86,9 @@ class ThreeLayerConvNet(object):
     W2, b2 = self.params['W2'], self.params['b2']
     W3, b3 = self.params['W3'], self.params['b3']
     W4, b4 = self.params['W4'], self.params['b4']
+    gamma1, beta1 = self.params["gamma1"], self.params["beta1"]
+    #gamma2, beta2 = self.params["gamma2"], self.params["beta2"]
+    gamma3, beta3 = self.params["gamma3"], self.params["beta3"]
 
     # pass conv_param to the forward pass for the convolutional layer
     filter_size = W1.shape[2]
@@ -89,6 +98,9 @@ class ThreeLayerConvNet(object):
     pool_param = {'pool_height': 2, 'pool_width': 2, 'stride': 2}
 
     scores = None
+    if y is None:
+        for params in self.bn_params:
+            params[mode] = "test"
     ############################################################################
     # TODO: Implement the forward pass for the three-layer convolutional net,  #
     # computing the class scores for X and storing them in the scores          #
@@ -96,9 +108,13 @@ class ThreeLayerConvNet(object):
     # conv - relu - 2x2 max pool - affine - relu - affine - softmax                                                           #
     ############################################################################
     #pass
-    out, cache_conv      = conv_relu_pool_forward(X, W1, b1, conv_param, pool_param)
-    out, cache_relu      = affine_relu_forward(out, W2, b2)
-    scores, cache_affine = affine_forward(out, W3, b3)
+    #conv_bactchnorm_relu_pool_forward(x, w, b, gamma, beta, conv_param, pool_param, bn_param)
+    out, cache_conv1     = conv_bactchnorm_relu_pool_forward(X, W1, b1, gamma1, beta1, conv_param, pool_param, bn_param[0])
+    out, cache_conv2     = conv_relu_pool_forward(out, W2, b2, conv_param, pool_param)
+    out, cache_fc_batch  = batchnorm_forward(out, gamma3, beta3, self.bn_params[2])
+    out, cache_relu      = affine_relu_forward(out, W3, b3)
+    out, cache_dropout   = dropout_forward(out, self.dropout_param)
+    scores, cache_affine = affine_forward(out, W4, b4)
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
@@ -116,8 +132,10 @@ class ThreeLayerConvNet(object):
     #pass
     loss, dScore = softmax_loss(scores, y)
     # Regularized loss
-    loss = loss + 0.5 * self.reg * np.sum(self.params["W1"] ** 2) + 0.5 * self.reg * np.sum(self.params["W2"] ** 2) + 0.5 * self.reg * np.sum(self.params["W3"] ** 2)
-    
+    loss = loss + 0.5 * self.reg * np.sum(self.params["W1"] ** 2) + 0.5 * self.reg * np.sum(self.params["W2"] ** 2) + 0.5 * self.reg * np.sum(self.params["W3"] ** 2) + 0.5 * self.reg * np.sum(self.params["W4"] ** 2)
+    dx, grads["W4"], grads["b4"] = affine_backward(dScore, cache_affine)
+    grads["W4"] += self.reg * self.params["W4"]
+    dx = dropout_backward(dx, cache_dropout)
     dx, grads["W3"], grads["b3"] = affine_backward(dScore, cache_affine)
     grads["W3"] += self.reg * self.params["W3"]
     dx, grads["W2"], grads["b2"] = affine_relu_backward(dx, cache_relu)
