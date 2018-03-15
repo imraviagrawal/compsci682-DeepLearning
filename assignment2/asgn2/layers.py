@@ -650,14 +650,15 @@ def spatial_batchnorm_backward(dout, cache):
   # be very short; ours is less than five lines.                              #
   #############################################################################
   first_transpose = (0,2,3,1)
-  x_trans = x.transpose(first_transpose)
-  out, cache = batchnorm_forward(x_trans.reshape(-1, x.shape[1]), gamma, beta, bn_param)
+  dout_trans = dout.transpose(first_transpose)
+  dx, dgamma, dbeta = batchnorm_backward(dout_trans.reshape(-1, x.shape[1]), cache)
   second_transpose = (0,3,1,2)
+  dx = dx.reshape(*dout_trans.shape)
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
 
-  return dx, dgamma, dbeta
+  return dx.transpose(second_transpose), dgamma, dbeta
   
 
 def svm_loss(x, y):
