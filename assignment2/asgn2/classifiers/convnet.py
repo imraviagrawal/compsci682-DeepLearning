@@ -5,7 +5,7 @@ from asgn2.fast_layers import *
 from asgn2.layer_utils import *
 
 
-class ThreeLayerConvNet(object):
+class MyAwesomeNet(object):
   """
   A three-layer convolutional network with the following architecture:
 
@@ -16,7 +16,7 @@ class ThreeLayerConvNet(object):
   channels.
   """
 
-  def __init__(self, num_filters, hidden_dims, input_dim=(3, 32, 32), filter_size=5,
+  def __init__(self, num_filters, hidden_dim, input_dim=(3, 32, 32), filter_size=5,
                num_classes=10, weight_scale=1e-3, reg=0.0, dropout=0,
                dtype=np.float32):
     """
@@ -62,6 +62,7 @@ class ThreeLayerConvNet(object):
     self.params["b2"] = np.zeros(num_filters[1])
     #self.params["gamma2"] = np.ones(num_filters[1])
     #self.params["beta2"] = np.zeros(num_filters[1])
+    #print(num_filters[1]*(input_dim[1]/4)*(input_dim[2]/4), hidden_dim)
     self.params["W3"] = weight_scale * np.random.randn(num_filters[1]*(input_dim[1]/4)*(input_dim[2]/4), hidden_dim)
     self.params["b3"] = np.zeros(hidden_dim)
     self.params["gamma3"] = np.ones(hidden_dim)
@@ -109,7 +110,7 @@ class ThreeLayerConvNet(object):
     ############################################################################
     #pass
     #conv_bactchnorm_relu_pool_forward(x, w, b, gamma, beta, conv_param, pool_param, bn_param)
-    out, cache_conv1     = conv_bactchnorm_relu_pool_forward(X, W1, b1, gamma1, beta1, conv_param, pool_param, bn_param[0])
+    out, cache_conv1     = conv_bactchnorm_relu_pool_forward(X, W1, b1, gamma1, beta1, conv_param, pool_param, self.bn_params[0])
     out, cache_conv2     = conv_relu_pool_forward(out, W2, b2, conv_param, pool_param)
     out, cache_fc_batch  = batchnorm_forward(out, gamma3, beta3, self.bn_params[2])
     out, cache_relu      = affine_relu_forward(out, W3, b3)
