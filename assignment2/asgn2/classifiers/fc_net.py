@@ -179,21 +179,21 @@ class FullyConnectedNet(object):
         ############################################################################
         for dim in range(self.num_layers):
             if dim == 0:
-                self.params["W%d" % (dim + 1)] = weight_scale * np.random.randn(input_dim, hidden_dims[dim])
-                #self.params["W%d" % (dim + 1)] = np.random.normal(scale =  weight_scale , size = (input_dim, hidden_dims[dim]))
+                #self.params["W%d" % (dim + 1)] = weight_scale * np.random.randn(input_dim, hidden_dims[dim])
+                self.params["W%d" % (dim + 1)] = np.random.normal(scale =  weight_scale , size = (input_dim, hidden_dims[dim]))
                 self.params["b%d" % (dim + 1)] = np.zeros(hidden_dims[dim])
                 if self.use_batchnorm:
                     self.params["gamma%d" %(dim + 1)] = np.ones(input_dim)
                     self.params["beta%d" %(dim + 1)] = np.zeros((input_dim))
             elif dim == self.num_layers - 1:
-                self.params["W%d" % (dim + 1)] = weight_scale * np.random.randn(hidden_dims[dim - 1], num_classes)
-                #self.params["W%d" % (dim + 1)] = np.random.normal(scale =  weight_scale , size = (hidden_dims[dim - 1], num_classes))
+                #self.params["W%d" % (dim + 1)] = weight_scale * np.random.randn(hidden_dims[dim - 1], num_classes)
+                self.params["W%d" % (dim + 1)] = np.random.normal(scale =  weight_scale , size=(hidden_dims[dim - 1], num_classes))
                 self.params["b%d" % (dim + 1)] = np.zeros(num_classes)
 
             else:
                 # Some reason the randn is not working properly
-                self.params["W%d" % (dim + 1)] = weight_scale * np.random.randn(hidden_dims[dim - 1], hidden_dims[dim])
-                #self.params["W%d" % (dim + 1)] = np.random.normal(scale =  weight_scale , size = (hidden_dims[dim - 1], hidden_dims[dim]))
+                #self.params["W%d" % (dim + 1)] = weight_scale * np.random.randn(hidden_dims[dim - 1], hidden_dims[dim])
+                self.params["W%d" % (dim + 1)] = np.random.normal(scale =  weight_scale , size = (hidden_dims[dim - 1], hidden_dims[dim]))
                 self.params["b%d" % (dim + 1)] = np.zeros(hidden_dims[dim])
                 if self.use_batchnorm:
                     self.params["gamma%d" %(dim + 1)] = np.ones(hidden_dims[dim - 1])
@@ -265,7 +265,6 @@ class FullyConnectedNet(object):
                     #print("drop out here")
                     scores, forward_cache[dropo] = dropout_forward(scores, self.dropout_param)
         #print("here")
-        #
         ############################################################################
         # TODO: Implement the forward pass for the fully-connected net, computing  #
         # the class scores for X and storing them in the scores variable.          #
@@ -313,12 +312,11 @@ class FullyConnectedNet(object):
             #print(weight, bais, fc, fc_relu, fc_batch, gamma, beta, dropo)
             if i == self.num_layers - 1:
                 dx, grads[weight], grads[bais] = affine_backward(dScore, forward_cache[fc])
-                grads[weight] =grads[weight] +  self.reg * self.params[weight]
+                #grads[weight] = grads[weight] +  self.reg * self.params[weight]
             else:
                 # if self.use_dropout and self.use_batchnorm:
                 #     dx,grads[weight], grads[bais], grads[gamma], grads[beta] =affine_batchnorm_relu_dropout_backward(dx, forward_cache[fc])
                 # else:
-                
                 if self.use_dropout:
                     dx = dropout_backward(dx, forward_cache[dropo])
 
@@ -328,7 +326,7 @@ class FullyConnectedNet(object):
                 if self.use_batchnorm:
                     dx, grads[gamma], grads[beta] = batchnorm_backward(dx, forward_cache[fc_batch])
 
-                grads[weight] = grads[weight]+  self.reg * self.params[weight]
+            #grads[weight] = grads[weight]+  self.reg * self.params[weight]
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
