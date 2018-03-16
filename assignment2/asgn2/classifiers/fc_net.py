@@ -318,6 +318,7 @@ class FullyConnectedNet(object):
                 # if self.use_dropout and self.use_batchnorm:
                 #     dx,grads[weight], grads[bais], grads[gamma], grads[beta] =affine_batchnorm_relu_dropout_backward(dx, forward_cache[fc])
                 # else:
+                
                 if self.use_dropout:
                     dx = dropout_backward(dx, forward_cache[dropo])
 
