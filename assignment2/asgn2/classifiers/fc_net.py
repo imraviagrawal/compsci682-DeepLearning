@@ -45,9 +45,11 @@ class TwoLayerNet(object):
         # weights and biases using the keys 'W1' and 'b1' and second layer weights #
         # and biases using the keys 'W2' and 'b2'.                                 #
         ############################################################################
-        self.params["W1"] = weight_scale * np.random.randn(input_dim, hidden_dim)
+        #self.params["W%d" % (dim + 1)] = np.random.normal(scale =  weight_scale , size = (input_dim, hidden_dims[dim]))
+        self.params["W1"] = np.random.normal(scale =  weight_scale , size = (input_dim, hidden_dim))
         self.params["b1"] = np.zeros(hidden_dim)
-        self.params["W2"] = weight_scale * np.random.randn(hidden_dim, num_classes)
+        #np.random.normal(scale =  weight_scale , size = (hidden_dims, num_classes))
+        self.params["W2"] = np.random.normal(scale =  weight_scale , size = (hidden_dim, num_classes))
         self.params["b2"] = np.zeros(num_classes)
         ############################################################################
         #                             END OF YOUR CODE                             #
@@ -251,17 +253,17 @@ class FullyConnectedNet(object):
                 scores, forward_cache[fc] = affine_forward(scores, self.params[weight], self.params[bais])
                 
             else:
-                if self.use_batchnorm and self.use_dropout:
-                    scores, forward_cache[fc] = affine_batchnorm_relu_dropout_forward(scores, self.params[weight], self.params[bais], self.params[gamma], self.params[beta], self.bn_params[i -1], self.dropout_param)
-                else:
-                    if self.use_batchnorm:
-                        #print("batch out here")
-                        scores, forward_cache[fc_batch] = batchnorm_forward(scores, self.params[gamma], self.params[beta], self.bn_params[i -1])
-                    scores, forward_cache[fc] = affine_forward(scores, self.params[weight], self.params[bais])
-                    scores, forward_cache[fc_relu] = relu_forward(scores)
-                    if self.use_dropout:
-                        #print("drop out here")
-                        scores, forward_cache[dropo] = dropout_forward(scores, self.dropout_param)
+                # if self.use_batchnorm and self.use_dropout:
+                #     scores, forward_cache[fc] = affine_batchnorm_relu_dropout_forward(scores, self.params[weight], self.params[bais], self.params[gamma], self.params[beta], self.bn_params[i -1], self.dropout_param)
+                # else:
+                if self.use_batchnorm:
+                    #print("batch out here")
+                    scores, forward_cache[fc_batch] = batchnorm_forward(scores, self.params[gamma], self.params[beta], self.bn_params[i -1])
+                scores, forward_cache[fc] = affine_forward(scores, self.params[weight], self.params[bais])
+                scores, forward_cache[fc_relu] = relu_forward(scores)
+                if self.use_dropout:
+                    #print("drop out here")
+                    scores, forward_cache[dropo] = dropout_forward(scores, self.dropout_param)
         #print("here")
         #
         ############################################################################
@@ -313,17 +315,17 @@ class FullyConnectedNet(object):
                 dx, grads[weight], grads[bais] = affine_backward(dScore, forward_cache[fc])
                 grads[weight] =grads[weight] +  self.reg * self.params[weight]
             else:
-                if self.use_dropout and self.use_batchnorm:
-                    dx,grads[weight], grads[bais], grads[gamma], grads[beta] =affine_batchnorm_relu_dropout_backward(dx, forward_cache[fc])
-                else:
-                    if self.use_dropout:
-                        dx = dropout_backward(dx, forward_cache[dropo])
+                # if self.use_dropout and self.use_batchnorm:
+                #     dx,grads[weight], grads[bais], grads[gamma], grads[beta] =affine_batchnorm_relu_dropout_backward(dx, forward_cache[fc])
+                # else:
+                if self.use_dropout:
+                    dx = dropout_backward(dx, forward_cache[dropo])
 
-                    dx, grads[weight], grads[bais] = affine_relu_backward(dx,
-                                                                          (forward_cache[fc], forward_cache[fc_relu]))
-                    
-                    if self.use_batchnorm:
-                        dx, grads[gamma], grads[beta] = batchnorm_backward(dx, forward_cache[fc_batch])
+                dx, grads[weight], grads[bais] = affine_relu_backward(dx,
+                                                                      (forward_cache[fc], forward_cache[fc_relu]))
+                
+                if self.use_batchnorm:
+                    dx, grads[gamma], grads[beta] = batchnorm_backward(dx, forward_cache[fc_batch])
 
                 grads[weight] = grads[weight]+  self.reg * self.params[weight]
         ############################################################################
