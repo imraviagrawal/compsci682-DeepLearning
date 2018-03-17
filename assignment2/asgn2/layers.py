@@ -191,7 +191,7 @@ def batchnorm_forward(x, gamma, beta, bn_param):
     numerator = x - expected_mean
     denominator = np.sqrt(variance + eps)
     xhat = numerator/denominator
-
+    # minusmomentum = (1 - momentum)
     out = gamma*xhat + beta
     running_mean = momentum*running_mean + (1 - momentum)*expected_mean
     running_var = momentum*running_var + (1 - momentum)*variance 

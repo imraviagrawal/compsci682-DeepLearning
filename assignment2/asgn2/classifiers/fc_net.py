@@ -179,15 +179,15 @@ class FullyConnectedNet(object):
         ############################################################################
         for dim in range(self.num_layers):
             if dim == 0:
-                self.params["W%d" % (dim + 1)] = weight_scale * np.random.randn(input_dim, hidden_dims[dim])
-                #self.params["W%d" % (dim + 1)] = np.random.normal(scale =  weight_scale , size = (input_dim, hidden_dims[dim]))
+                #self.params["W%d" % (dim + 1)] = weight_scale * np.random.randn(input_dim, hidden_dims[dim])
+                self.params["W%d" % (dim + 1)] = np.random.normal(scale =  weight_scale , size = (input_dim, hidden_dims[dim]))
                 self.params["b%d" % (dim + 1)] = np.zeros(hidden_dims[dim])
                 if self.use_batchnorm:
                     self.params["gamma%d" %(dim + 1)] = np.ones(input_dim)
                     self.params["beta%d" %(dim + 1)] = np.zeros((input_dim))
             elif dim == self.num_layers - 1:
-                #self.params["W%d" % (dim + 1)] = weight_scale * np.random.randn(hidden_dims[dim - 1], num_classes)
-                self.params["W%d" % (dim + 1)] = np.random.normal(scale =  weight_scale , size=(hidden_dims[dim - 1], num_classes))
+                self.params["W%d" % (dim + 1)] = weight_scale * np.random.randn(hidden_dims[dim - 1], num_classes)
+                #self.params["W%d" % (dim + 1)] = np.random.normal(scale =  weight_scale , size=(hidden_dims[dim - 1], num_classes))
                 self.params["b%d" % (dim + 1)] = np.zeros(num_classes)
 
             else:
