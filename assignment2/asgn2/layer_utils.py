@@ -123,10 +123,10 @@ def conv_batchnorm_relu_pool_backward(dout, cache):
   return dx, dw, db, dgamma, dbeta
 
 def affine_batchnorm_relu_dropout_forward(x, w, b, gamma, beta, bn_params, dropout_param):
-  a, fc_cache = affine_forward(x, w, b)
-  bna, bn_cache = batchnorm_forward(a, gamma, beta, bn_params)
-  rea, relu_cache = relu_forward(bna)
-  out, cache_dropout = dropout_forward(rea, dropout_param)
+  fc, fc_cache = affine_forward(x, w, b)
+  bn_fc, bn_cache = batchnorm_forward(fc, gamma, beta, bn_params)
+  relu_fc, relu_cache = relu_forward(bn_fc)
+  out, cache_dropout = dropout_forward(relu_fc, dropout_param)
   cache = (fc_cache, bn_cache, relu_cache, cache_dropout)
   return out, cache
 
