@@ -94,14 +94,24 @@ def rnn_forward(x, h0, Wx, Wh, b):
   Returns a tuple of:
   - h: Hidden states for the entire timeseries, of shape (N, T, H).
   - cache: Values needed in the backward pass
+  rnn_step_forward(x, prev_h, Wx, Wh, b)
   """
   h, cache = None, None
+
+  N, T, D = x.shape
+  (H,) = b.shape
+  h = np.zeros((N, T, H))
   ##############################################################################
   # TODO: Implement forward pass for a vanilla RNN running on a sequence of    #
   # input data. You should use the rnn_step_forward function that you defined  #
   # above.                                                                     #
   ##############################################################################
-  pass
+  prev_h = h0
+  for t_vector in range(T):
+    x_t = x[:, t_vector, :]
+    prev_h, mini_cache = rnn_step_forward(x_t, prev_h, Wx, Wh, b)
+    h[:, t_vector, :] = prev_h
+  cache = (x, h, h0, Wh, Wx, b)
   ##############################################################################
   #                               END OF YOUR CODE                             #
   ##############################################################################
@@ -128,7 +138,10 @@ def rnn_backward(dh, cache):
   # sequence of data. You should use the rnn_step_backward function that you   #
   # defined above.                                                             #
   ##############################################################################
-  pass
+  x, h, h0, Wh, Wx, b = cache
+
+  N, T, H = dh.shape
+  
   ##############################################################################
   #                               END OF YOUR CODE                             #
   ##############################################################################
