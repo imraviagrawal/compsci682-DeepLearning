@@ -32,7 +32,9 @@ def rnn_step_forward(x, prev_h, Wx, Wh, b):
   # hidden state and any values you need for the backward pass in the next_h   #
   # and cache variables respectively.                                          #
   ##############################################################################
-  pass
+  a = np.dot(prev_h, Wh) + np.dot(x, Wx) + b
+  next_h = np.tanh(a)
+  cache = (a,next_h, prev_h, Wx, Wh, x)
   ##############################################################################
   #                               END OF YOUR CODE                             #
   ##############################################################################
@@ -61,7 +63,14 @@ def rnn_step_backward(dnext_h, cache):
   # HINT: For the tanh function, you can compute the local derivative in terms #
   # of the output value from tanh.                                             #
   ##############################################################################
-  pass
+  a, next_h, prev_h, Wx, Wh, x = cache
+
+  da = dnext_h * (1 - next_h * next_h)
+  dprev_h = np.dot(da, Wh.T)
+  dWh = np.dot(prev_h.T, da)
+  dx = np.dot(da, Wx.T)
+  dWx = np.dot(x.T, da)
+  db = np.sum(da, axis = 0)
   ##############################################################################
   #                               END OF YOUR CODE                             #
   ##############################################################################
