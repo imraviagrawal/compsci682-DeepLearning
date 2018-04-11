@@ -34,7 +34,7 @@ def rnn_step_forward(x, prev_h, Wx, Wh, b):
   ##############################################################################
   a = np.dot(prev_h, Wh) + np.dot(x, Wx) + b
   next_h = np.tanh(a)
-  cache = (a,next_h, prev_h, Wx, Wh, x)
+  cache = (b,next_h, prev_h, Wx, Wh, x)
   ##############################################################################
   #                               END OF YOUR CODE                             #
   ##############################################################################
@@ -63,7 +63,7 @@ def rnn_step_backward(dnext_h, cache):
   # HINT: For the tanh function, you can compute the local derivative in terms #
   # of the output value from tanh.                                             #
   ##############################################################################
-  a, next_h, prev_h, Wx, Wh, x = cache
+  b, next_h, prev_h, Wx, Wh, x = cache
 
   da = dnext_h * (1 - next_h * next_h)
   dprev_h = np.dot(da, Wh.T)
@@ -139,9 +139,33 @@ def rnn_backward(dh, cache):
   # defined above.                                                             #
   ##############################################################################
   x, h, h0, Wh, Wx, b = cache
-
+ 
   N, T, H = dh.shape
+  D = Wx.shape[0]
+  dx = np.zeros_like(x)
+  dh0 = np.zeros_like(h0)
+  dWx = np.zeros_like(Wx)
+  dWh = np.zeros_like(Wh)
+  db = np.zeros_like(b)
+  dprev_h = np.zeros((N, H))
   
+  next_h = h[:, T-1, :]
+
+  #b, next_h, prev_h, Wx, Wh, x
+  
+  for t_vector in reversed(range(T)):
+    x_t = x[:, t_vector, :]
+    if t_vector != 0:
+      prev_h = h[:, t_vector - 1, :]
+    else:
+      prev_h = h0
+    
+    dnext_h = dh[:, t_vector, :] + dprev_h
+    dx[:, t_vector, :], dprev_h, dWx_t, dWh_t, db_t = rnn_step_backward(dnext_h, (b, next_h, prev_h, Wx, Wh, x_t))
+    next_h = prev_h
+    dWx += dWx_t; dWh += dWh_t; db += db_t
+  
+  dh0 = dprev_h
   ##############################################################################
   #                               END OF YOUR CODE                             #
   ##############################################################################
