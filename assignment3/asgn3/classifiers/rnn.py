@@ -141,8 +141,8 @@ class CaptioningRNN(object):
     h0 = np.dot(features, W_proj) + b_proj
     #print(hidden_layer0.shape) 
     # Word embedding later to transform the words in captions_in from indices to vector
-    embedding, embedding_cache = word_embedding_forward(captions_in, W_embed)
-    cache["embedding_cache"] = embedding_cache
+    embedding, cache["embedding_cache"] = word_embedding_forward(captions_in, W_embed)
+    #cache["embedding_cache"] = embedding_cache
 
     # Rnn or lstm
     if self.cell_type == "rnn":
@@ -152,14 +152,25 @@ class CaptioningRNN(object):
     cache["cell_cache"] = cell_cache
 
     # temporal affine 
-    temporal_out, temporal_cache = temporal_affine_forward(cell_out, W_vocab, b_vocab)
-    cache["temporal_cache"] = temporal_cache
+    temporal_out, cache["temporal_cache"] = temporal_affine_forward(cell_out, W_vocab, b_vocab)
+    #cache["temporal_cache"] = temporal_cache
 
     #Temporal Softmax
     loss, dout = temporal_softmax_loss(temporal_out, captions_out, mask)
 
 
     # Temporal affine backward
+    dx, grads["W_vocab"],  grads["b_vocab"] = temporal_affine_backward(dout, cache["temporal_cache"])
+
+    # Cell backward
+    if self.cell_type == "rnn":
+        dx, dh0, grads['Wx'], grads['Wh'], grads['b'] = rnn_backward(dx, cache["cell_cache"])
+    else:
+        dx, dh0, grads['Wx'], grads['Wh'], grads['b'] = lstm_backward(dx, cache["cell_cache"])
+    
+    grads["W_embed"] = word_embedding_backward(dx, cache["embedding_cache"])
+    
+    grads["W_proj"], grads["b_proj"] = np.dot(features.T, dh0), np.sum(dh0, axis = 0)
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
