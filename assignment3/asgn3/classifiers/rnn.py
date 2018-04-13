@@ -238,14 +238,14 @@ class CaptioningRNN(object):
     # h0, temporal_cache = affine_forward(features, W_proj, b_proj)
     
     embeddings = W_embed[[self._start]*N]
-    prev_h = h0
+    prev_h = h0; prev_c = np.zeros_like(h0)
     captions[:, 0] = self._start
     print(embeddings.shape)
     for length in range(1, max_length):
         if self.cell_type == "rnn":
             next_h,  cell_cache = rnn_step_forward(embeddings, prev_h, Wx, Wh, b)
         else:
-            next_h,  cell_cache = lstm_step_forward(embeddings, prev_h, Wx, Wh, b)
+            next_h, prev_c,  cell_cache = lstm_step_forward(embeddings, prev_h, prev_c,  Wx, Wh, b)
         out  = np.dot(next_h, W_vocab) + b_vocab
         captions[:, length] = np.argmax(out, axis = 1)
         embeddings = W_embed[captions[:, length]]
