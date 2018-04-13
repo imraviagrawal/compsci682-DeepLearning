@@ -246,7 +246,6 @@ class CaptioningRNN(object):
             next_h,  cell_cache = rnn_step_forward(embeddings, prev_h, Wx, Wh, b)
         else:
             next_h,  cell_cache = lstm_step_forward(embeddings, prev_h, Wx, Wh, b)
-
         out  = np.dot(next_h, W_vocab) + b_vocab
         captions[:, length] = np.argmax(out, axis = 1)
         embeddings = W_embed[captions[:, length]]
