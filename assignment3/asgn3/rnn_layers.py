@@ -367,11 +367,22 @@ def lstm_forward(x, h0, Wx, Wh, b):
   - cache: Values needed for the backward pass.
   """
   h, cache = None, None
+  cache = {}
   #############################################################################
   # TODO: Implement the forward pass for an LSTM over an entire timeseries.   #
   # You should use the lstm_step_forward function that you just defined.      #
   #############################################################################
-  pass
+  N, T, D = x.shape
+  _, H = h0.shape
+  #pass
+  # dprev_c: Gradient of previous cell state, of shape (N, H)
+  prev_c = np.zeros((N, H))
+ 
+  prev_h = h0
+  h = np.zeros((N, T, H))
+  for t in range(T):
+    prev_h, prev_c, cache[t] = lstm_step_forward(x[:, t, :], prev_h, prev_c, Wx, Wh, b)
+    h[:, t, :] = prev_h 
   ##############################################################################
   #                               END OF YOUR CODE                             #
   ##############################################################################
