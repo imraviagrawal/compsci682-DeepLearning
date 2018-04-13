@@ -291,7 +291,7 @@ def lstm_step_forward(x, prev_h, prev_c, Wx, Wh, b):
   ##############################################################################
   #                               END OF YOUR CODE                             #
   ##############################################################################
-  cache = i_g, f_g, o_g, g, np.tanh(next_c), prev_h, prev_c, Wx, Wh, b
+  cache = i_g, f_g, o_g, g, np.tanh(next_c), prev_h, prev_c, Wx, Wh, b, x
   return next_h, next_c, cache
 
 
@@ -319,15 +319,29 @@ def lstm_step_backward(dnext_h, dnext_c, cache):
   # HINT: For sigmoid and tanh you can compute local derivatives in terms of  #
   # the output value from the nonlinearity.                                   #
   #############################################################################
-  i_g, f_g, o_g, g, c_t_g, prev_h, prev_c, Wx, Wh, b = cache
-  dc_t_g = o_g*
+  i_g, f_g, o_g, g, c_t_g, prev_h, prev_c, Wx, Wh, b, x = cache
+  dc_t_g = o_g*(1 - np.multiply(c_t_g, c_t_g))*dnext_h + dnext_c
   do_g = c_t_g*dnext_h
+  df_g = prev_c*dc_t_g
+  di_g = g*dc_t_g
+  d_g = i_g*dc_t_g
 
+  dig = (1 - i_g)*i_g*di_g
+  dfg = (1 - f_g)*f_g*df_g
+  dog = (1 - o_g)*o_g*do_g
+  dgg = (1 - g*g)*d_g
+
+  da = np.hstack((dig, dfg, dog, dgg))
+  dWx = np.transpose(x).dot(da)
+  dWh = np.transpose(prev_h).dot(da)
+  dx = np.dot(da, np.transpose(Wx))
+  dprev_c = f_g*dc_t_g
+  dprev_h = np.dot(da, np.transpose(Wh))
   ##############################################################################
   #                               END OF YOUR CODE                             #
   ##############################################################################
 
-  return dx, dprev_h, dprev_c, dWx, dWh, db
+  return dx, dprev_h, dprev_c, dWx, dWh, np.sum(da, axis = 0)
 
 
 def lstm_forward(x, h0, Wx, Wh, b):
