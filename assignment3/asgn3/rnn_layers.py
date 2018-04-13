@@ -422,14 +422,15 @@ def lstm_backward(dh, cache):
 
   for t in reversed(range(T)):
     dnext_h, dnext_c = dh[:, t, :]+dprev_h, dprev_c
-    dx[:, t, :], dprev_h, dprev_c, dWx_t,dWh_t, db_t =  lstm_step_backward(dnext_h, dnext_c, cache[T - 1])
+    dx[:, t, :], dprev_h, dprev_c, dWx_t,dWh_t, db_t =  lstm_step_backward(dnext_h, dnext_c, cache[t])
     dWx = dWx + dWx_t
     dWh = dWh + dWh_t
     db = db + db_t
+
   ##############################################################################
   #                               END OF YOUR CODE                             #
   ##############################################################################
-  
+  dh0 = dprev_h
   return dx, dh0, dWx, dWh, db
 
 
