@@ -377,7 +377,6 @@ def lstm_forward(x, h0, Wx, Wh, b):
   #pass
   # dprev_c: Gradient of previous cell state, of shape (N, H)
   prev_c = np.zeros((N, H))
- 
   prev_h = h0
   h = np.zeros((N, T, H))
   for t in range(T):
@@ -410,7 +409,23 @@ def lstm_backward(dh, cache):
   # TODO: Implement the backward pass for an LSTM over an entire timeseries.  #
   # You should use the lstm_step_backward function that you just defined.     #
   #############################################################################
-  pass
+  N, T, H = dh.shape
+  i_g, f_g, o_g, g, c_t_g, prev_h, prev_c, Wx, Wh, b, x = cache[T - 1]
+  D = x.shape[1]
+
+  dx = np.zeros((N, T, D))
+  dWx = np.zeros_like(Wx)
+  dWh = np.zeros_like(Wh)
+  dh0 = np.zeros((N, H))
+  db = np.zeros((4*H, ))
+  dprev_h, dprev_c = np.zeros((N, H)), np.zeros((N, H))
+
+  for t in reversed(range(T)):
+    dnext_h, dnext_c = dh[:, t, :]+dprev_h, dprev_c
+    dx[:, t, :], dprev_h, dprev_c, dWx_t,dWh_t, db_t =  lstm_step_backward(dnext_h, dnext_c, cache[T - 1])
+    dWx = dWx + dWx_t
+    dWh = dWh + dWh_t
+    db = db + db_t
   ##############################################################################
   #                               END OF YOUR CODE                             #
   ##############################################################################
