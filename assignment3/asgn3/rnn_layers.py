@@ -100,7 +100,8 @@ def rnn_forward(x, h0, Wx, Wh, b):
 
   N, T, D = x.shape
   (H,) = b.shape
-  h = np.zeros((N, T, H))
+  h_shape = (N, T, H)
+  h = np.zeros(h_shape)
   ##############################################################################
   # TODO: Implement forward pass for a vanilla RNN running on a sequence of    #
   # input data. You should use the rnn_step_forward function that you defined  #
