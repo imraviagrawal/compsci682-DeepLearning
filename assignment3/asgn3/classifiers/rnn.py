@@ -162,13 +162,13 @@ class CaptioningRNN(object):
 
     # Cell backward
     if self.cell_type == "rnn":
-        dx, dh0, grads['Wx'], grads['Wh'], grads['b'] = rnn_backward(dx, cache["cell_cache"])
+        dx, dhidden_layer0, grads['Wx'], grads['Wh'], grads['b'] = rnn_backward(dx, cache["cell_cache"])
     else:
-        dx, dh0, grads['Wx'], grads['Wh'], grads['b'] = lstm_backward(dx, cache["cell_cache"])
+        dx, dhidden_layer0, grads['Wx'], grads['Wh'], grads['b'] = lstm_backward(dx, cache["cell_cache"])
     
     grads["W_embed"] = word_embedding_backward(dx, cache["embedding_cache"])
     
-    grads["W_proj"], grads["b_proj"] = np.dot(features.T, dh0), np.sum(dh0, axis = 0)
+    grads["W_proj"], grads["b_proj"] = np.dot(features.T, dhidden_layer0), np.sum(dhidden_layer0, axis = 0)
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
