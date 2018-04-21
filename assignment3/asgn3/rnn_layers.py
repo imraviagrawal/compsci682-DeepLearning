@@ -285,10 +285,14 @@ def lstm_step_forward(x, prev_h, prev_c, Wx, Wh, b):
   N, D = x.shape
   _, H = prev_h.shape
   a = np.dot(x, Wx) + np.dot(prev_h, Wh) + b
-  i_g = sigmoid(a[:, :H])
-  f_g = sigmoid(a[:, H:2*H])
-  o_g = sigmoid(a[:, 2*H:3*H])
-  g = np.tanh(a[:, 3*H: ])
+  input_gate = a[:, :H]
+  forgot_gate = a[:, H:2*H]
+  output_gate = a[:, 2*H:3*H]
+  cell = a[:, 3*H: ]
+  i_g = sigmoid(input_gate)
+  f_g = sigmoid(forgot_gate)
+  o_g = sigmoid(output_gate)
+  g = np.tanh(cell)
   next_c = np.multiply(f_g, prev_c) + np.multiply(i_g, g) 
   next_h = np.multiply(o_g, np.tanh(next_c))
   ##############################################################################
