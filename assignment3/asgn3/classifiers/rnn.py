@@ -209,6 +209,8 @@ class CaptioningRNN(object):
     Wx, Wh, b = self.params['Wx'], self.params['Wh'], self.params['b']
     W_vocab, b_vocab = self.params['W_vocab'], self.params['b_vocab']
     
+    embeddings = W_embed[[self._start]*N]
+    captions[:, 0] = self._start
     ###########################################################################
     # TODO: Implement test-time sampling for the model. You will need to      #
     # initialize the hidden state of the RNN by applying the learned affine   #
@@ -231,19 +233,33 @@ class CaptioningRNN(object):
     # a loop.                                                                 #
     ###########################################################################
     #pass
-    hidden_layer0 = np.dot(features, W_proj) + b_proj
-    embeddings = W_embed[[self._start]*N]
-    prev_h = hidden_layer0; prev_c = np.zeros_like(hidden_layer0)
-    captions[:, 0] = self._start
-    print(embeddings.shape)
+    hidden_layer0 = np.dot(features, W_proj) + b_proj # Affine layer
+    prev_h = hidden_layer0; prev_c = np.zeros_like(hidden_layer0) # Few initializing 
+    
+    # Traversing through the seq
     for length in range(1, max_length):
+
         if self.cell_type == "rnn":
+            # RNN cell calculation
             next_h,  cell_cache = rnn_step_forward(embeddings, prev_h, Wx, Wh, b)
+        
         else:
-            next_h, prev_c,  cell_cache = lstm_step_forward(embeddings, prev_h, prev_c,  Wx, Wh, b)
+            # LSTM cell calculation
+            next_h, prev_c, cell_cache = lstm_step_forward(embeddings, prev_h, prev_c,  Wx, Wh, b)
+       
+        # Predicted output
         out  = np.dot(next_h, W_vocab) + b_vocab
-        captions[:, length] = np.argmax(out, axis = 1)
-        embeddings = W_embed[captions[:, length]]
+
+        # The caption
+        caption_input = np.argmax(out, axis = 1)
+        # Updating captions
+        captions[:, length] = caption_input
+
+        # loading new embedding
+        W_index = captions[:, length]
+        embeddings = W_embed[W_index]
+        
+        # Finally the predicted h is now previous h
         prev_h = next_h
     ############################################################################
     #                             END OF YOUR CODE                             #
