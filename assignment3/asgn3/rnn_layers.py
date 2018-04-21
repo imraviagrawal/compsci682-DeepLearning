@@ -65,12 +65,12 @@ def rnn_step_backward(dnext_h, cache):
   ##############################################################################
   b, next_h, prev_h, Wx, Wh, x = cache
 
-  da = dnext_h * (1 - next_h * next_h)
-  dprev_h = np.dot(da, Wh.T)
-  dWh = np.dot(prev_h.T, da)
-  dx = np.dot(da, Wx.T)
-  dWx = np.dot(x.T, da)
-  db = np.sum(da, axis = 0)
+  dhidden_layer = dnext_h * (1 - next_h * next_h)
+  dprev_h = np.dot(dhidden_layer, Wh.T)
+  dWh = np.dot(prev_h.T, dhidden_layer)
+  dx = np.dot(dhidden_layer, Wx.T)
+  dWx = np.dot(x.T, dhidden_layer)
+  db = np.sum(dhidden_layer, axis = 0)
   ##############################################################################
   #                               END OF YOUR CODE                             #
   ##############################################################################
