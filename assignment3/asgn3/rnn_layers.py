@@ -235,7 +235,8 @@ def word_embedding_backward(dout, cache):
   ##############################################################################
   for n in range(N):
     for t in range(T):
-      dW[x[n, t]] = dW[x[n, t]] + dout[n, t]
+      W_index = x[n, t]; out_shape = (n, t)
+      dW[W_index] = dW[W_index] + dout[out_shape]
   ##############################################################################
   #                               END OF YOUR CODE                             #
   ##############################################################################
