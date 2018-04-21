@@ -424,12 +424,19 @@ def lstm_backward(dh, cache):
   i_g, f_g, o_g, g, c_t_g, prev_h, prev_c, Wx, Wh, b, x = cache[T - 1]
   D = x.shape[1]
 
-  dx = np.zeros((N, T, D))
+  # Few shape 
+  dx_shape = (N, T, D) 
+  dh0_shape = (N, H)
+  db_shape = (4*H, )
+  dprev_shape = (N, H)
+
+  # Initializing the weights 
   dWx = np.zeros_like(Wx)
   dWh = np.zeros_like(Wh)
-  dh0 = np.zeros((N, H))
-  db = np.zeros((4*H, ))
-  dprev_h, dprev_c = np.zeros((N, H)), np.zeros((N, H))
+  dx = np.zeros(dx_shape)
+  dh0 = np.zeros(dh0_shape)
+  db = np.zeros(db_shape)
+  dprev_h, dprev_c = np.zeros(dprev_shape), np.zeros(dprev_shape)
 
   for t in reversed(range(T)):
     dnext_h, dnext_c = dh[:, t, :]+dprev_h, dprev_c
