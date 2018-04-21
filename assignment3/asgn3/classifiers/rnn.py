@@ -138,22 +138,20 @@ class CaptioningRNN(object):
     #pass
     #1 Temporal Affine fucntion
     cache = {}
-    h0 = np.dot(features, W_proj) + b_proj
+    hidden_layer0 = np.dot(features, W_proj) + b_proj
     #print(hidden_layer0.shape) 
     # Word embedding later to transform the words in captions_in from indices to vector
     embedding, cache["embedding_cache"] = word_embedding_forward(captions_in, W_embed)
-    #cache["embedding_cache"] = embedding_cache
 
     # Rnn or lstm
     if self.cell_type == "rnn":
-        cell_out,  cell_cache = rnn_forward(embedding, h0, Wx, Wh, b)
+        cell_out,  cache["cell_cache"] = rnn_forward(embedding, hidden_layer0, Wx, Wh, b)
     else:
-        cell_out,  cell_cache = lstm_forward(embedding, h0, Wx, Wh, b)
-    cache["cell_cache"] = cell_cache
+        cell_out,  cache["cell_cache"] = lstm_forward(embedding, hidden_layer0, Wx, Wh, b)
+     # = cell_cache
 
     # temporal affine 
     temporal_out, cache["temporal_cache"] = temporal_affine_forward(cell_out, W_vocab, b_vocab)
-    #cache["temporal_cache"] = temporal_cache
 
     #Temporal Softmax
     loss, dout = temporal_softmax_loss(temporal_out, captions_out, mask)
@@ -233,12 +231,9 @@ class CaptioningRNN(object):
     # a loop.                                                                 #
     ###########################################################################
     #pass
-    h0 = np.dot(features, W_proj) + b_proj
-
-    # h0, temporal_cache = affine_forward(features, W_proj, b_proj)
-    
+    hidden_layer0 = np.dot(features, W_proj) + b_proj
     embeddings = W_embed[[self._start]*N]
-    prev_h = h0; prev_c = np.zeros_like(h0)
+    prev_h = hidden_layer0; prev_c = np.zeros_like(hidden_layer0)
     captions[:, 0] = self._start
     print(embeddings.shape)
     for length in range(1, max_length):
