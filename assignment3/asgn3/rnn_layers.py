@@ -383,9 +383,13 @@ def lstm_forward(x, h0, Wx, Wh, b):
   _, H = h0.shape
   #pass
   # dprev_c: Gradient of previous cell state, of shape (N, H)
-  prev_c = np.zeros((N, H))
+  prev_c_shape = (N, H)
+  h_shape = (N, T, H)
+  prev_c = np.zeros(prev_c_shape)
+  h = np.zeros(h_shape)
   prev_h = h0
-  h = np.zeros((N, T, H))
+
+
   for t in range(T):
     prev_h, prev_c, cache[t] = lstm_step_forward(x[:, t, :], prev_h, prev_c, Wx, Wh, b)
     h[:, t, :] = prev_h 
